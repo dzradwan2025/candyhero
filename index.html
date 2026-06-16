@@ -302,9 +302,13 @@
         var CURRENT_VERSION = '1.0';
 
         // ============================================================
-        // 3. التحديث (اللعبة و APK)
+        // 3. التحديث (اللعبة و APK) - تعمل فقط عند الضغط على الزر
         // ============================================================
         function checkForUpdate() {
+            if (!navigator.onLine) {
+                showToast('⚠️ لا يوجد اتصال بالإنترنت!');
+                return;
+            }
             showToast('🔄 جارٍ فحص التحديثات...');
             fetch(UPDATE_URL + '?v=' + Date.now())
                 .then(function(r) { return r.text(); })
@@ -323,6 +327,10 @@
         }
 
         function checkAPKUpdate() {
+            if (!navigator.onLine) {
+                showToast('⚠️ لا يوجد اتصال بالإنترنت!');
+                return;
+            }
             showToast('📱 جارٍ فحص تحديث APK...');
             fetch('https://dzradwan2025.github.io/candyhero/version.json?v=' + Date.now())
                 .then(function(r) { return r.json(); })
