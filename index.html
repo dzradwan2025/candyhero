@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>🍬 كاندي هيرو - Candy Hero v1.0</title>
+    <style>
+        :root { --gold:#FFD700; --gem:#9b59b6; --accent:#e94560; }
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+        html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;background:#1a1a2e;font-family:'Arial',sans-serif;position:fixed;top:0;left:0;}
+
+        #mainMenu{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#1a1a2e,#16213e,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;gap:8px;overflow-y:auto;padding:15px;}
+        .menu-title{font-size:1.9rem;font-weight:bold;color:var(--gold);text-shadow:0 0 25px rgba(255,215,0,0.6);animation:logoFloat 2s ease-in-out infinite;}
+        @keyframes logoFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+        .menu-hero{font-size:3.8rem;animation:heroBounce 1.5s ease-in-out infinite;}
+        @keyframes heroBounce{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-12px) scale(1.04);}}
+        .menu-buttons{display:flex;flex-direction:column;gap:7px;width:88%;max-width:300px;}
+        .menu-btn{background:linear-gradient(135deg,#2a2a4a,#3a3a5a);color:#fff;border:2px solid #4a4a6a;padding:11px;border-radius:10px;font-size:0.85rem;font-weight:bold;cursor:pointer;font-family:inherit;text-align:center;min-height:40px;}
+        .menu-btn:active{transform:scale(0.96);opacity:0.9;}
+        .menu-btn.play{background:linear-gradient(135deg,#e94560,#ff6b6b);border-color:#ff6b6b;font-size:1.05rem;animation:playPulse 2s infinite;}
+        @keyframes playPulse{0%,100%{box-shadow:0 0 10px rgba(233,68,96,0.3);}50%{box-shadow:0 0 25px rgba(233,68,96,0.6);}}
+        .menu-btn.shop{background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;}
+        .menu-btn.daily{background:linear-gradient(135deg,#f39c12,#e67e22);border-color:#e67e22;animation:glowMoney 2s infinite;}
+        .menu-btn.quests{background:linear-gradient(135deg,#00b894,#00cec9);border-color:#00cec9;}
+        .menu-btn.achievements{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-color:#a29bfe;}
+        .menu-btn.update{background:linear-gradient(135deg,#0984e3,#74b9ff);border-color:#74b9ff;}
+        .menu-hearts,.menu-gems{display:flex;gap:4px;align-items:center;font-size:0.8rem;}
+        .menu-hearts{color:#ff6b6b;}.menu-gems{color:var(--gem);}
+
+        #gameScreen{display:none;width:100%;height:100%;flex-direction:column;position:fixed;top:0;left:0;}
+        #gameScreen.active{display:flex;}
+        .stats-bar{width:100%;padding:3px 8px;display:flex;justify-content:space-around;align-items:center;background:rgba(22,33,62,0.95);z-index:11;border-bottom:1px solid #333;flex-shrink:0;font-size:0.7rem;color:#fff;min-height:28px;}
+        .top-bar{width:100%;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;background:rgba(22,33,62,0.95);z-index:10;box-shadow:0 2px 12px rgba(0,0,0,0.5);flex-shrink:0;gap:3px;min-height:40px;}
+        .currency{display:flex;align-items:center;gap:2px;font-size:0.78rem;font-weight:bold;}
+        .currency.gold{color:var(--gold);}.currency.gems{color:var(--gem);}
+        .level-badge{background:linear-gradient(135deg,#e94560,#ff6b6b);color:#fff;padding:3px 7px;border-radius:8px;font-size:0.65rem;font-weight:bold;}
+        .back-btn,.pause-btn,.settings-btn{background:rgba(255,255,255,0.1);color:#fff;border:none;font-size:0.95rem;cursor:pointer;padding:5px 8px;border-radius:6px;min-height:32px;min-width:32px;}
+        .game-area{flex:1;width:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#87CEEB,#B0E0E6,#E0F7FA,#c8e6c9);}
+        .cloud{position:absolute;font-size:2rem;opacity:0.55;animation:cloudMove linear infinite;}
+        .cloud:nth-child(1){top:5%;animation-duration:22s;}.cloud:nth-child(2){top:15%;animation-duration:28s;animation-delay:-8s;font-size:1.6rem;}.cloud:nth-child(3){top:25%;animation-duration:20s;animation-delay:-4s;font-size:1.4rem;}
+        @keyframes cloudMove{0%{left:-10%;}100%{left:110%;}}
+        .danger-line{position:absolute;bottom:80px;width:100%;height:4px;background:linear-gradient(90deg,transparent,#ff0000,#ff4444,#ff0000,transparent);z-index:6;animation:dangerPulse 0.5s infinite;}
+        @keyframes dangerPulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+        .danger-label{position:absolute;bottom:85px;right:6px;z-index:7;font-size:0.5rem;color:#ff4444;font-weight:bold;}
+        .ground{position:absolute;bottom:0;width:100%;height:60px;background:linear-gradient(0deg,#4CAF50,#66BB6A,#81C784);border-radius:50% 50% 0 0/20px 20px 0 0;z-index:5;}
+        .character{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);font-size:2.6rem;z-index:20;transition:left 0.3s ease-out;}
+        .start-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;}
+        .start-overlay .tap-text{font-size:1.5rem;font-weight:bold;color:#FFD700;animation:pulse 1s infinite;}
+        .start-overlay .tap-sub{color:#fff;font-size:0.8rem;}
+        .progress-container{width:90%;text-align:center;z-index:30;margin-top:5px;background:rgba(255,255,255,0.7);padding:6px;border-radius:8px;}
+        .level-label{font-size:0.85rem;font-weight:bold;color:#333;}
+        .progress-bar-bg{width:100%;height:10px;background:#ddd;border-radius:5px;overflow:hidden;margin:3px 0;}
+        .progress-bar-fill{height:100%;background:linear-gradient(90deg,#4ecca3,#44dd88);border-radius:5px;transition:width 0.3s;}
+        .difficulty{font-size:0.6rem;color:#666;}
+        .speed-indicator{position:absolute;top:5px;right:5px;z-index:30;background:rgba(0,0,0,0.5);color:#fff;padding:2px 6px;border-radius:5px;font-size:0.55rem;}
+        .falling-item{position:absolute;font-size:1.8rem;cursor:pointer;animation:fall linear;pointer-events:auto;z-index:15;filter:drop-shadow(0 0 4px rgba(255,255,255,0.4));}
+        .falling-item:active{transform:scale(1.35);}
+        @keyframes fall{0%{top:-40px;opacity:1;}100%{top:110%;opacity:1;}}
+        @keyframes missedFloat{0%{opacity:1;transform:translateY(0) scale(0.7);}30%{opacity:1;transform:translateY(-35px) scale(1.2);}100%{opacity:0;transform:translateY(-100px) scale(0.5);}}
+
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);z-index:600;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px;text-align:center;padding:12px;}
+        .modal.show{display:flex;}
+        .modal-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;}
+        .modal-box{position:relative;z-index:1;width:92%;max-width:340px;max-height:72vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;align-items:center;padding:12px;background:rgba(30,30,50,0.96);border-radius:12px;border:2px solid #555;}
+        .modal-close{position:absolute;top:6px;right:6px;z-index:2;background:var(--accent);color:#fff;border:none;width:28px;height:28px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:28px;min-width:28px;font-weight:bold;}
+        .modal h2{color:#fff;font-size:1rem;margin-top:3px;}
+        .modal button{padding:9px 20px;border-radius:14px;font-size:0.8rem;font-weight:bold;cursor:pointer;font-family:inherit;border:none;width:88%;min-height:36px;margin:2px 0;}
+        .close-btn{background:var(--accent);color:#fff;}
+        .wait-btn{background:#555;color:#ccc;}
+        .watch-ad-btn{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;animation:glowMoney 1.5s infinite;}
+        .buy-btn{background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;}
+        .retry-btn{background:linear-gradient(135deg,#e94560,#ff6b6b);color:#fff;}
+        .resume-btn{background:#4ecca3;color:#fff;}
+        @keyframes glowMoney{0%,100%{box-shadow:0 0 5px rgba(0,206,201,0.3);}50%{box-shadow:0 0 15px rgba(0,206,201,0.5);}}
+        .setting-row{display:flex;justify-content:space-between;align-items:center;width:88%;padding:7px;background:rgba(255,255,255,0.08);border-radius:7px;color:#fff;gap:5px;font-size:0.8rem;}
+        .setting-toggle{width:36px;height:20px;background:#555;border-radius:10px;cursor:pointer;position:relative;transition:background 0.3s;}
+        .setting-toggle.active{background:#4ecca3;}
+        .setting-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left 0.3s;}
+        .setting-toggle.active::after{left:18px;}
+
+        .bottom-panel{width:100%;background:rgba(22,33,62,0.95);padding:5px 7px;display:flex;flex-direction:column;gap:2px;flex-shrink:0;max-height:34vh;overflow-y:auto;}
+        .btn-row{display:flex;gap:3px;flex-wrap:wrap;}
+        .bottom-panel button{background:linear-gradient(135deg,#2a2a4a,#3a3a5a);color:#fff;border:2px solid #4a4a6a;padding:7px 9px;border-radius:7px;font-size:0.68rem;cursor:pointer;font-weight:bold;flex:1;min-width:52px;font-family:inherit;min-height:36px;}
+        .bottom-panel button:active{transform:scale(0.94);}
+        .bottom-panel button.primary{background:linear-gradient(135deg,#e94560,#ff6b6b);border-color:#ff6b6b;}
+        .bottom-panel button:disabled{opacity:0.35;}
+        .tabs{display:flex;gap:2px;margin-bottom:2px;}
+        .tab{padding:7px 9px;background:#1a1a3a;border-radius:7px 7px 0 0;cursor:pointer;font-size:0.7rem;font-weight:bold;border:1px solid #333;border-bottom:none;}
+        .tab.active{background:#e94560;border-color:#e94560;}
+        .tab-content{display:none;}.tab-content.active{display:block;}
+        .shop-item{display:flex;justify-content:space-between;align-items:center;padding:7px;background:linear-gradient(135deg,#1a1a3a,#222244);border-radius:7px;margin:2px 0;border:1px solid #333;font-size:0.7rem;}
+        .shop-item.ad-item{border:2px solid #00cec9;animation:glowMoney 2s infinite;}
+        .shop-item.special{border:2px solid #FFD700;}
+        .shop-item.vip-item{border:2px solid #e94560;animation:glowMoney 1.5s infinite;}
+        .shop-item-info{flex:1;}
+        .shop-item-desc{font-size:0.6rem;color:#aaa;}
+        .vip-badge{background:#e94560;color:#fff;padding:2px 4px;border-radius:4px;font-size:0.5rem;}
+        .ach-item{display:flex;align-items:center;gap:5px;padding:5px;background:rgba(255,255,255,0.04);border-radius:5px;margin:2px 0;font-size:0.68rem;color:#fff;}
+        .ach-icon{font-size:1.2rem;}
+        .ach-locked{opacity:0.3;}
+        .daily-item{display:flex;justify-content:space-between;align-items:center;padding:7px;background:rgba(255,215,0,0.07);border-radius:7px;margin:2px 0;border:1px solid #FFD700;color:#fff;font-size:0.7rem;}
+        .quest-item{display:flex;justify-content:space-between;align-items:center;padding:5px;background:rgba(0,206,201,0.07);border-radius:5px;margin:2px 0;border:1px solid #00cec9;color:#fff;font-size:0.65rem;}
+        .toast{position:fixed;bottom:40%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#fff;padding:8px 16px;border-radius:14px;z-index:700;font-weight:bold;font-size:0.78rem;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+        .toast.show{opacity:1;}
+    </style>
+</head>
+<body>
+
+    <div id="mainMenu">
+        <div class="menu-hero" id="menuHero">🦸‍♂️</div>
+        <div class="menu-title">🍬 كاندي هيرو</div>
+        <div class="menu-hearts">❤️ <span id="menuHearts">10</span></div>
+        <div class="menu-gems">💎 <span id="menuGems">0</span></div>
+        <div class="menu-buttons">
+            <button class="menu-btn play" onclick="startGame()">▶️ ابدأ اللعب</button>
+            <button class="menu-btn daily" onclick="openModal('dailyModal')">🎁 المكافأة اليومية</button>
+            <button class="menu-btn quests" onclick="openModal('questsModal')">🎯 المهمات</button>
+            <button class="menu-btn achievements" onclick="openModal('achievementsModal')">🏅 الإنجازات</button>
+            <button class="menu-btn shop" onclick="openShop()">🛒 المتجر</button>
+            <button class="menu-btn update" onclick="checkForUpdate()">🔄 تحديث اللعبة</button>
+            <button class="menu-btn" onclick="openModal('settingsModal')">⚙️ الإعدادات</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="stats-bar"><span>💣 <b id="bombsHit" style="color:#ff4444;">0</b>/5</span><span>🍬 <b id="candiesMissed" style="color:#ffaa00;">0</b>/5</span><span>❤️ <b id="heartsDisplay">10</b></span><span id="vipBadge" style="display:none;"><span class="vip-badge">VIP</span></span></div>
+        <div class="top-bar"><button class="back-btn" onclick="goToMenu()">↩️</button><span class="currency gold">🪙 <span id="goldDisplay">0</span></span><span class="level-badge">🏰 <span id="levelDisplay">1</span>/100</span><span class="currency gems">💎 <span id="gemsDisplay">0</span></span><button class="pause-btn" onclick="openPauseMenu()">⏸️</button><button class="settings-btn" onclick="openModal('settingsModal')">⚙️</button></div>
+        <div class="game-area" id="gameArea">
+            <div class="cloud">☁️</div><div class="cloud">☁️</div><div class="cloud">☁️</div><div class="danger-line"></div><div class="danger-label">⚠️ خط الخطر</div><div class="character" id="character" style="left:50%;">🦸‍♂️</div><div class="ground"></div><div class="speed-indicator">⚡ <span id="speedDisplay">1x</span></div>
+            <div class="start-overlay" id="startOverlay" onclick="beginPlay()"><div class="tap-text">👆 اضغط للبدء</div><div class="tap-sub">المستوى <span id="startLevel">1</span></div></div>
+            <div class="progress-container"><div class="level-label" id="levelTitle">⚔️ السهول 1</div><div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBarFill" style="width:0%;"></div></div><div class="difficulty">🔥 <span id="difficultyText">سهل</span> | 🎯 <span id="clicksRemaining">30</span>/<span id="levelTarget">30</span></div></div>
+        </div>
+        <div class="bottom-panel">
+            <div class="tabs"><div class="tab active" onclick="switchTab('upgrades')">⚡ ترقيات</div><div class="tab" onclick="switchTab('heroes')">🦸 أبطال</div><div class="tab" onclick="switchTab('shop')">🛒 متجر</div><div class="tab" onclick="switchTab('ads')">📺 مكافآت</div><div class="tab" onclick="switchTab('prestige')">🌟 دورة</div></div>
+            <div class="tab-content active" id="tab-upgrades"><div class="btn-row"><button onclick="upgradeClick()" id="btnUpgradeClick">⚡ نقر 🪙<span id="upgradeClickCost">10</span></button><button onclick="upgradeGold()" id="btnUpgradeGold">💰 ذهب 🪙<span id="upgradeGoldCost">80</span></button></div></div>
+            <div class="tab-content" id="tab-heroes"><button onclick="hireHero()" id="btnHireHero" class="primary">🤖 بطل 🪙<span id="heroCost">150</span></button><button onclick="upgradeHero()" id="btnUpgradeHero" disabled>💪 ترقية 🪙<span id="upgradeHeroCost">300</span></button></div>
+            <div class="tab-content" id="tab-shop"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar('superhero',500)">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar('candyking',2500)">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney('gems_500')" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_month')" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_forever')" style="width:auto;padding:5px 8px;">💳</button></div></div>
+            <div class="tab-content" id="tab-ads"><div class="shop-item ad-item"><div class="shop-item-info">💎 50 جوهرة</div><button class="watch-ad-btn" onclick="watchAdReward('gems')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">🪙 5000 ذهب</div><button class="watch-ad-btn" onclick="watchAdReward('gold')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">❤️ +3 قلوب</div><button class="watch-ad-btn" onclick="watchAdReward('hearts')" style="width:auto;padding:5px 8px;">📺</button></div></div>
+            <div class="tab-content" id="tab-prestige"><button onclick="doPrestige()" id="btnPrestige" class="primary" disabled>🌟 إعادة الدورة (50+) 💎<span id="prestigeGems">20</span></button></div>
+        </div>
+    </div>
+
+    <div class="modal" id="pauseModal"><div class="modal-bg" onclick="closeModal('pauseModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('pauseModal')">✖️</button><div style="font-size:3rem;">⏸️</div><h2>إيقاف مؤقت</h2><button class="resume-btn" onclick="resumeGame()">▶️ استمرار</button><button class="retry-btn" onclick="restartLevel()">🔄 إعادة المستوى</button><button class="wait-btn" onclick="quitWithHeart()">🚪 خروج (خسارة قلب)</button></div></div>
+    <div class="modal" id="loseModal"><div class="modal-bg" onclick="closeModal('loseModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('loseModal')">✖️</button><div style="font-size:3rem;">😞</div><h2>لقد خسرت!</h2><p style="color:#fff;" id="loseReason"></p><p style="color:#4ecca3;">💪 لا تستسلم!</p><button class="retry-btn" onclick="retryLevel()">🔄 أعد المحاولة</button><button class="watch-ad-btn" onclick="retryWithAd()">📺 إعلان +30%</button><button class="wait-btn" onclick="giveUpLevel()">🚪 خروج</button></div></div>
+    <div class="modal" id="noHeartsModal"><div class="modal-bg" onclick="closeModal('noHeartsModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('noHeartsModal')">✖️</button><div style="font-size:3rem;">💔</div><h2>نفدت القلوب!</h2><p style="color:#fff;">وقت الانتظار:</p><div style="color:#FFD700;font-size:1.5rem;" id="waitTimer">05:00:00</div><button class="watch-ad-btn" onclick="watchAdReward('hearts')">📺 إعلان لـ 3 قلوب</button><button class="wait-btn" onclick="goToMenuFromHearts()">↩️ العودة</button></div></div>
+    <div class="modal" id="levelTransition"><div class="modal-bg" onclick="closeModal('levelTransition')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('levelTransition')">✖️</button><div style="font-size:3rem;">🎉</div><h2>أحسنت!</h2><p style="color:#fff;">انتقل إلى: <strong id="nextLevelName"></strong></p><p style="color:#FFD700;">💰 <span id="transitionReward">0</span> ذهب</p><button class="resume-btn" onclick="continueLevel()">▶️ المستوى التالي</button></div></div>
+    <div class="modal" id="dailyModal"><div class="modal-bg" onclick="closeModal('dailyModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('dailyModal')">✖️</button><h2>🎁 المكافأة اليومية</h2><div id="dailyContent" style="width:100%;"></div></div></div>
+    <div class="modal" id="questsModal"><div class="modal-bg" onclick="closeModal('questsModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('questsModal')">✖️</button><h2>🎯 المهمات اليومية</h2><div id="questsContent" style="width:100%;"></div></div></div>
+    <div class="modal" id="achievementsModal"><div class="modal-bg" onclick="closeModal('achievementsModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('achievementsModal')">✖️</button><h2>🏅 الإنجازات</h2><div id="achContent" style="width:100%;max-height:220px;overflow-y:auto;"></div></div></div>
+    <div class="modal" id="settingsModal"><div class="modal-bg" onclick="closeModal('settingsModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('settingsModal')">✖️</button><h2>⚙️ الإعدادات</h2><div class="setting-row"><span>🎵 الموسيقى</span><div class="setting-toggle active" id="toggleMusic" onclick="toggleMusic()"></div></div><div class="setting-row"><span>🔊 المؤثرات</span><div class="setting-toggle active" id="toggleSFX" onclick="toggleSFX()"></div></div></div></div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        var audioCtx=null,musicOn=true,sfxOn=true;
+        function initAudio(){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+        function playTone(f,d,t,v){if(!audioCtx||!sfxOn) return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.1;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}catch(e){}}
+        function sfx(t){if(!sfxOn) return;switch(t){case'click':playTone(600,0.05,'square',0.07);break;case'candy':playTone(1000,0.07,'sine',0.1);break;case'bomb':playTone(45,0.18,'sawtooth',0.2);break;case'levelup':playTone(523,0.07,'sine',0.12);setTimeout(function(){playTone(659,0.07,'sine',0.12);},70);setTimeout(function(){playTone(784,0.1,'sine',0.18);},140);break;case'lose':playTone(100,0.3,'sawtooth',0.2);break;case'buy':playTone(800,0.08,'sine',0.12);setTimeout(function(){playTone(1200,0.08,'sine',0.12);},90);break;case'ach':playTone(523,0.07,'sine',0.12);setTimeout(function(){playTone(659,0.07,'sine',0.12);},70);setTimeout(function(){playTone(784,0.07,'sine',0.12);},140);setTimeout(function(){playTone(1047,0.12,'sine',0.18);},210);break;}}
+        (function(){var tc=Date.now();setInterval(function(){if(Math.abs(Date.now()-tc)>4000) document.body.innerHTML='<div style="color:#ff4444;text-align:center;padding:50px;font-size:2rem;">⚠️ تم اكتشاف تلاعب!</div>';tc=Date.now();},2000);})();
+
+        var G={gold:0,gems:0,level:1,clicksNeeded:30,clicksDone:0,clickDmg:1,idleDmg:0,hasHero:false,heroLv:0,prestige:0,goldMult:0,dmgMult:0,char:'superhero',chars:['superhero'],charData:{'superhero':{e:'🦸‍♂️'},'wizard':{e:'🧙‍♂️'},'robot':{e:'🤖'},'candyking':{e:'👑'}},hearts:10,maxHearts:10,waiting:false,waitEnd:0,bombsHit:0,candiesMissed:0,maxMissed:5,maxBombs:5,levelFailed:false,gameStarted:false,powerActive:false,powerTimer:0,shieldActive:false,shieldTimer:0,isVIP:false,vipExpire:0,totalClicks:0,totalLevels:0,totalBombs:0,totalCandies:0,dailyClaimed:'',dailyStreak:0,quests:{click50:0,level5:0,bomb10:0},questsClaimed:'',saveCode:''};
+        var upClickCost=10,upGoldCost=80,heroCost=150,upHeroCost=300;
+        var spawnInt=null,waitInt=null,checkInt=null,lastClick=0,gamePaused=false;
+        var levels=['السهول','الغابة','الكهف','الجبل','البركان','الصحراء','المستنقع','القلعة','البرج','السجن','المعبد','المحيط','السماء','النجوم','الهاوية'];
+        var candies=[{e:'🍬',v:2},{e:'🍭',v:3},{e:'🍫',v:4},{e:'🍩',v:5},{e:'🧁',v:7}];
+        var bombs=[{e:'💣',d:5},{e:'💥',d:10},{e:'🧨',d:18},{e:'🔥',d:12},{e:'☠️',d:35}];
+        var adLimit=5,adCount=0,adDate='';
+        var achievements=[{id:'click100',n:'👆 مبتدئ النقر',d:'انقر 100 مرة',goal:100,icon:'👆'},{id:'level10',n:'🌱 بداية الرحلة',d:'المستوى 10',goal:10,icon:'🌱'},{id:'level50',n:'🔥 في المنتصف',d:'المستوى 50',goal:50,icon:'🔥'},{id:'level100',n:'👑 بطل الحلوى',d:'المستوى 100',goal:100,icon:'👑'},{id:'bomb20',n:'💣 خبير القنابل',d:'20 قنبلة',goal:20,icon:'💣'},{id:'candy100',n:'🍬 محب الحلوى',d:'100 حلوى',goal:100,icon:'🍬'},{id:'gems500',n:'💎 ثري',d:'500 جوهرة',goal:500,icon:'💎'},{id:'prestige1',n:'🌟 بداية جديدة',d:'أعد الدورة',goal:1,icon:'🌟'}];
+        var dailyRewards=[{d:1,r:{gems:10,gold:500}},{d:2,r:{gems:20,gold:1000}},{d:3,r:{gems:30,gold:2000}},{d:4,r:{gems:50,gold:3000}},{d:5,r:{gems:80,gold:5000}},{d:6,r:{gems:100,gold:8000}},{d:7,r:{gems:200,gold:15000}}];
+
+        var UPDATE_URL='https://candyhero.pages.dev/index.html';
+        var CURRENT_VERSION='1.0';
+
+        function checkForUpdate(){showToast('🔄 جارٍ فحص التحديثات...');fetch(UPDATE_URL+'?v='+Date.now()).then(function(r){return r.text();}).then(function(code){if(code.length>2000){if(confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')){save();var blob=new Blob([code],{type:'text/html'});window.location.href=URL.createObjectURL(blob);}}else{showToast('✅ لديك أحدث إصدار v'+CURRENT_VERSION);}}).catch(function(){showToast('⚠️ تعذر الاتصال');});}
+
+        function save(){localStorage.setItem('CHF8',JSON.stringify({G:G,ucc:upClickCost,ugc:upGoldCost,hc:heroCost,uhc:upHeroCost,adc:adCount,add:adDate}));}
+        function load(){var s=localStorage.getItem('CHF8');if(s){var d=JSON.parse(s);G=d.G||G;upClickCost=d.ucc||10;upGoldCost=d.ugc||80;heroCost=d.hc||150;upHeroCost=d.uhc||300;adCount=d.adc||0;adDate=d.add||'';if(!G.chars) G.chars=['superhero'];if(!G.hearts) G.hearts=10;if(!G.maxMissed) G.maxMissed=5;if(!G.maxBombs) G.maxBombs=5;if(!G.totalClicks) G.totalClicks=0;if(!G.totalLevels) G.totalLevels=0;if(!G.totalBombs) G.totalBombs=0;if(!G.totalCandies) G.totalCandies=0;if(!G.quests) G.quests={click50:0,level5:0,bomb10:0};if(G.isVIP) document.getElementById('vipBadge').style.display='inline';}updateUI();}
+        function dmg(){var d=Math.floor((G.clickDmg+G.prestige*2)*(1+G.dmgMult/100));if(G.powerActive) d*=3;return d;}
+        function goldR(){return Math.floor(G.level*5*(1+G.goldMult/100));}
+        function speed(){if(G.level<=3) return 1;if(G.level<=8) return 1+(G.level-3)*0.08;if(G.level<=20) return 1.4+(G.level-8)*0.1;if(G.level<=50) return 2.6+(G.level-20)*0.12;if(G.level<=80) return 6.2+(G.level-50)*0.15;return 10.7+(G.level-80)*0.2;}
+        function spawnT(){if(G.level<=3) return 1500;if(G.level<=10) return Math.max(600,1400-(G.level*80));if(G.level<=30) return Math.max(350,800-(G.level*20));return Math.max(180,400-(G.level*5));}
+        function fallT(){if(G.level<=3) return 5;if(G.level<=10) return Math.max(2.5,5-(G.level*0.25));if(G.level<=30) return Math.max(1.2,3-(G.level*0.08));return Math.max(0.6,1.5-(G.level*0.02));}
+        function penalty(){if(G.level<=5) return 1;if(G.level<=15) return Math.floor(2+G.level*0.2);if(G.level<=40) return Math.floor(4+G.level*0.4);if(G.level<=70) return Math.floor(8+G.level*0.6);return Math.floor(12+G.level*1);}
+        function diff(){if(G.level<=3) return{n:'سهل جداً',b:0.1};if(G.level<=8) return{n:'سهل',b:0.2};if(G.level<=20) return{n:'متوسط',b:0.3};if(G.level<=40) return{n:'صعب',b:0.45};if(G.level<=65) return{n:'صعب جداً',b:0.6};if(G.level<=85) return{n:'خارق',b:0.8};return{n:'مستحيل',b:1.0};}
+        function need(){if(G.level<=3) return 30;if(G.level<=10) return Math.floor(30+G.level*3);if(G.level<=30) return Math.floor(60+G.level*4);if(G.level<=60) return Math.floor(100+G.level*5);if(G.level<=90) return Math.floor(180+G.level*6);return Math.floor(250+G.level*7);}
+        function fmt(n){if(!n) return'0';n=Math.floor(n);if(n>=1e9) return(n/1e9).toFixed(1)+'B';if(n>=1e6) return(n/1e6).toFixed(1)+'M';if(n>=1e3) return(n/1e3).toFixed(1)+'K';return n.toString();}
+        function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1600);}
+        function closeModal(id){var el=document.getElementById(id);if(el) el.classList.remove('show');}
+        function openModal(id){
+            var el=document.getElementById(id);if(!el) return;
+            if(id==='dailyModal') prepareDailyModal();
+            if(id==='questsModal') prepareQuestsModal();
+            if(id==='achievementsModal') prepareAchievementsModal();
+            el.classList.add('show');
+        }
+
+        function openPauseMenu(){if(!G.gameStarted) return;gamePaused=true;G.gameStarted=false;if(spawnInt){clearInterval(spawnInt);spawnInt=null;}openModal('pauseModal');}
+        function resumeGame(){closeModal('pauseModal');gamePaused=false;G.gameStarted=true;startSpawning();updateUI();save();}
+        function restartLevel(){closeModal('pauseModal');gamePaused=false;G.clicksDone=0;G.bombsHit=0;G.candiesMissed=0;G.levelFailed=false;clearItems();beginPlay();}
+        function quitWithHeart(){closeModal('pauseModal');gamePaused=false;G.levelFailed=true;if(G.hearts>0){G.hearts--;updateUI();save();sfx('lose');if(G.hearts<=0){openModal('noHeartsModal');G.waiting=true;G.waitEnd=Date.now()+10*1800*1000;if(waitInt) clearInterval(waitInt);waitInt=setInterval(updateWait,1000);}}goToMenu();}
+
+        function prepareAchievementsModal(){var html='';achievements.forEach(function(a){html+='<div class="ach-item'+(G['ach_'+a.id]?'':' ach-locked')+'"><span class="ach-icon">'+(G['ach_'+a.id]?'✅':a.icon)+'</span><div style="flex:1;"><b>'+a.n+'</b><br><small>'+a.d+'</small></div></div>';});document.getElementById('achContent').innerHTML=html;}
+        function prepareDailyModal(){var today=new Date().toDateString();if(G.dailyClaimed===today){document.getElementById('dailyContent').innerHTML='<p style="color:#FFD700;">✅ تم استلام المكافأة اليوم!</p>';return;}var html='<p style="color:#fff;">🎁 مكافآت متتالية:</p>';var streak=G.dailyStreak||0;dailyRewards.forEach(function(dr,i){var isToday=i===streak%7;html+='<div class="daily-item'+(isToday?'" style="border:2px solid #FFD700;':'')+'"><span>يوم '+dr.d+': 💎'+dr.r.gems+' + 🪙'+dr.r.gold+'</span><span>'+(i<streak?'✅':isToday?'🎁':'🔒')+'</span></div>';});html+='<button class="watch-ad-btn" onclick="claimDaily()">🎁 استلم المكافأة</button>';document.getElementById('dailyContent').innerHTML=html;}
+        function claimDaily(){var today=new Date().toDateString();if(G.dailyClaimed===today) return;var idx=(G.dailyStreak||0)%7;var reward=dailyRewards[idx];G.gems+=reward.r.gems;G.gold+=reward.r.gold;G.dailyStreak=(G.dailyStreak||0)+1;G.dailyClaimed=today;prepareDailyModal();updateUI();save();sfx('buy');showToast('🎁 +'+reward.r.gems+'💎');}
+        function prepareQuestsModal(){var today=new Date().toDateString();if(G.questsClaimed!==today){G.quests={click50:0,level5:0,bomb10:0};G.questsClaimed=today;}var qs=[{n:'👆 انقر 50 مرة',v:G.quests.click50,g:50,r:30},{n:'🏆 اربح 5 مستويات',v:G.quests.level5,g:5,r:50},{n:'💣 اضغط 10 قنابل',v:G.quests.bomb10,g:10,r:20}];var html='';qs.forEach(function(q,i){var done=q.v>=q.g;html+='<div class="quest-item"><span>'+q.n+'</span><span>'+(done?'✅':q.v+'/'+q.g)+'</span>'+(done&&!G['q_'+i]?'<button onclick="claimQuest('+i+')" style="width:auto;padding:4px 8px;font-size:0.6rem;">💎'+q.r+'</button>':'')+'</div>';});document.getElementById('questsContent').innerHTML=html;}
+        function claimQuest(i){var rewards=[30,50,20];if(G['q_'+i]) return;G.gems+=rewards[i];G['q_'+i]=true;prepareQuestsModal();updateUI();save();sfx('buy');showToast('🎯 +'+rewards[i]+'💎');}
+
+        function openShop(){showShopModal();}
+        function showShopModal(){var el=document.getElementById('shopModal');if(el){el.classList.add('show');return;}var d=document.createElement('div');d.id='shopModal';d.className='modal';d.innerHTML='<div class="modal-bg" onclick="closeModal(\'shopModal\')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button><h2>🛒 المتجر</h2><div style="width:100%;max-height:220px;overflow-y:auto;"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div></div></div>';document.body.appendChild(d);setTimeout(function(){d.classList.add('show');},50);}
+
+        function saveToCloudLocal(){if(!G.isVIP){showToast('⚠️ VIP فقط!');return;}if(!G.saveCode) G.saveCode=prompt('أدخل رمز الحفظ:','')||'player1';var cd={G:G,ucc:upClickCost,ugc:upGoldCost,hc:heroCost,uhc:upHeroCost};localStorage.setItem('CLOUD_'+G.saveCode,JSON.stringify(cd));showToast('☁️ تم الحفظ!');}
+        function loadFromCloudLocal(){if(!G.isVIP){showToast('⚠️ VIP فقط!');return;}var code=prompt('أدخل رمز الحفظ:','')||'player1';var cloud=localStorage.getItem('CLOUD_'+code);if(cloud){var d=JSON.parse(cloud);G=d.G||G;upClickCost=d.ucc||10;upGoldCost=d.ugc||80;heroCost=d.hc||150;upHeroCost=d.uhc||300;G.saveCode=code;save();updateUI();showToast('📥 مرحباً بعودتك!');}else{showToast('❌ لم يتم العثور على حفظ');}}
+
+        function watchAdReward(type){var today=new Date().toDateString();if(adDate!==today){adCount=0;adDate=today;}if(G.isVIP){giveReward(type);return;}if(adCount>=adLimit){showToast('⚠️ الحد اليومي! VIP غير محدود');return;}showToast('📺 جارٍ التحميل...');adCount++;setTimeout(function(){giveReward(type);},1000);}
+        function giveReward(type){switch(type){case'gems':G.gems+=50;showToast('✅ +50 💎');break;case'gold':G.gold+=5000;showToast('✅ +5000 🪙');break;case'power':G.powerActive=true;G.powerTimer=300;showToast('⚡ ×3!');break;case'hearts':G.hearts=Math.min(G.maxHearts,G.hearts+3);closeModal('noHeartsModal');showToast('❤️ +3!');break;}updateUI();save();}
+        function buyWithMoney(type){var prices={},desc={},period='';switch(type){case'gems_500':prices='$0.10';desc='💎 500 جوهرة';break;case'vip_month':prices='$0.99';desc='👑 VIP شهري';period='30 يوماً';break;case'vip_forever':prices='$4.99';desc='👑 VIP دائم';period='للأبد';break;}var msg='💳 تأكيد:\n\n'+desc+'\nالسعر: '+prices;if(period) msg+='\nالمدة: '+period;if(!confirm(msg)) return;showToast('💳 جارٍ المعالجة...');setTimeout(function(){switch(type){case'gems_500':G.gems+=500;break;case'vip_month':activateVIP(30);break;case'vip_forever':activateVIP(99999);break;}updateUI();save();sfx('buy');},700);}
+        function activateVIP(days){G.isVIP=true;G.maxHearts=20;G.hearts=20;G.dmgMult+=100;G.vipExpire=days>=99999?9999999999999:Date.now()+(days*86400000);document.getElementById('vipBadge').style.display='inline';showToast('👑 VIP!');save();}
+        function checkVIPExpire(){if(G.isVIP&&G.vipExpire&&G.vipExpire<Date.now()&&G.vipExpire<999999999999){G.isVIP=false;G.maxHearts=10;if(G.hearts>10) G.hearts=10;G.dmgMult-=100;document.getElementById('vipBadge').style.display='none';showToast('⚠️ انتهى VIP!');save();}}
+
+        function checkAchievements(){achievements.forEach(function(a){var val=0;switch(a.id){case'click100':val=G.totalClicks;break;case'level10':case'level50':case'level100':val=G.level;break;case'bomb20':val=G.totalBombs;break;case'candy100':val=G.totalCandies;break;case'gems500':val=G.gems;break;case'prestige1':val=G.prestige;break;}if(val>=a.goal&&!G['ach_'+a.id]){G['ach_'+a.id]=true;G.gems+=a.goal>=50?30:15;showToast('🏅 '+a.n+'!');sfx('ach');}});updateUI();save();}
+
+        function startGame(){document.getElementById('mainMenu').style.display='none';document.getElementById('gameScreen').classList.add('active');initAudio();G.clicksNeeded=need();document.getElementById('startOverlay').style.display='flex';document.getElementById('startLevel').textContent=G.level;updateUI();if(G.isVIP) document.getElementById('vipBadge').style.display='inline';if(checkInt) clearInterval(checkInt);checkInt=setInterval(checkMissed,200);setInterval(save,10000);}
+        function beginPlay(){document.getElementById('startOverlay').style.display='none';G.levelFailed=false;G.gameStarted=true;gamePaused=false;G.bombsHit=0;G.candiesMissed=0;G.clicksDone=0;startSpawning();updateUI();save();}
+        function goToMenu(){G.gameStarted=false;gamePaused=false;if(spawnInt){clearInterval(spawnInt);spawnInt=null;}clearItems();document.getElementById('gameScreen').classList.remove('active');document.getElementById('mainMenu').style.display='flex';document.getElementById('menuHearts').textContent=G.hearts;document.getElementById('menuGems').textContent=G.gems;save();}
+        function goToMenuFromHearts(){closeModal('noHeartsModal');if(waitInt) clearInterval(waitInt);goToMenu();}
+        function switchTab(n){var ts=document.querySelectorAll('.tab'),cs=document.querySelectorAll('.tab-content');for(var i=0;i<ts.length;i++) ts[i].classList.remove('active');for(var j=0;j<cs.length;j++) cs[j].classList.remove('active');var m={'upgrades':0,'heroes':1,'shop':2,'ads':3,'prestige':4};ts[m[n]].classList.add('active');document.getElementById('tab-'+n).classList.add('active');}
+
+        function updateUI(){var d=diff(),sp=speed();document.getElementById('goldDisplay').textContent=fmt(G.gold);document.getElementById('gemsDisplay').textContent=fmt(G.gems);document.getElementById('levelDisplay').textContent=G.level;document.getElementById('levelTitle').textContent='⚔️ '+levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('difficultyText').textContent=d.n;document.getElementById('clicksRemaining').textContent=Math.max(0,G.clicksNeeded-G.clicksDone);document.getElementById('levelTarget').textContent=G.clicksNeeded;document.getElementById('progressBarFill').style.width=Math.min(100,(G.clicksDone/G.clicksNeeded)*100)+'%';document.getElementById('speedDisplay').textContent=sp.toFixed(1)+'x';document.getElementById('bombsHit').textContent=G.bombsHit;document.getElementById('candiesMissed').textContent=G.candiesMissed;document.getElementById('heartsDisplay').textContent=G.hearts;document.getElementById('menuHearts').textContent=G.hearts;document.getElementById('menuGems').textContent=G.gems;document.getElementById('upgradeClickCost').textContent=fmt(upClickCost);document.getElementById('upgradeGoldCost').textContent=fmt(upGoldCost);document.getElementById('heroCost').textContent=fmt(heroCost);document.getElementById('upgradeHeroCost').textContent=fmt(upHeroCost);document.getElementById('btnUpgradeClick').disabled=G.gold<upClickCost;document.getElementById('btnUpgradeGold').disabled=G.gold<upGoldCost;document.getElementById('btnHireHero').disabled=G.hasHero||G.gold<heroCost;document.getElementById('btnUpgradeHero').disabled=!G.hasHero||G.gold<upHeroCost;document.getElementById('btnPrestige').disabled=G.level<50;document.getElementById('prestigeGems').textContent=Math.floor(20+G.level*0.8+G.prestige*5);document.getElementById('character').textContent=G.charData[G.char].e;document.getElementById('menuHero').textContent=G.charData[G.char].e;checkAchievements();}
+
+        function startSpawning(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}if(G.level<100&&G.hearts>0&&!G.levelFailed&&G.gameStarted&&!gamePaused){spawnInt=setInterval(spawn,spawnT());}}
+        function spawn(){if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;var mx=G.level<=3?3:G.level<=10?5:G.level<=25?7:G.level<=50?8:10;if(document.querySelectorAll('.falling-item').length>mx) return;var item=document.createElement('div');item.className='falling-item';var d=diff(),isB=Math.random()<d.b;if(isB){var b=bombs[Math.floor(Math.random()*bombs.length)];item.textContent=b.e;item.dataset.t='bomb';item.dataset.v=b.d+Math.floor(G.level/5);}else{var c=candies[Math.floor(Math.random()*candies.length)];item.textContent=c.e;item.dataset.t='candy';item.dataset.v=c.v;}item.dataset.clicked='false';item.dataset.checked='false';item.style.left=(Math.random()*80+5)+'%';item.style.top='-45px';var ft=fallT();item.style.animation='fall '+ft+'s linear';item.addEventListener('click',function(e){e.stopPropagation();clickItem(item,e);});item.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();clickItem(item,e);},{passive:false});document.getElementById('gameArea').appendChild(item);setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),(ft+0.8)*1000);}
+
+        function clickItem(item,e){if(!G.gameStarted||G.hearts<=0||G.levelFailed||gamePaused) return;if(item.dataset.clicked==='true') return;var now=Date.now();if(now-lastClick<55) return;lastClick=now;item.dataset.clicked='true';item.dataset.checked='true';var t=item.dataset.t,v=parseInt(item.dataset.v);var r=item.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;if(t==='bomb'){if(G.shieldActive){showFloat('🛡️',x,y,'#00cec9');}else{G.bombsHit++;G.totalBombs++;G.clicksDone=Math.max(0,G.clicksDone-v);showFloat('💥 -'+v,x,y,'#ff4444');sfx('bomb');if(G.bombsHit>=G.maxBombs){lose('bombs');return;}}}else{G.totalCandies++;G.clicksDone+=v*dmg();G.totalClicks++;showFloat('+'+v*dmg(),x,y,'#ff69b4');sfx('candy');if(G.clicksDone>=G.clicksNeeded) levelUp();}G.quests.bomb10=Math.min(10,G.quests.bomb10+(t==='bomb'?1:0));G.quests.click50=Math.min(50,G.quests.click50+1);item.style.transform='scale(0)';item.style.opacity='0';setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),150);updateUI();save();}
+        function showFloat(t,x,y,c){var el=document.createElement('div');el.style.cssText='position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:burst 1s ease-out forwards;';el.textContent=t;el.style.left=x+'px';el.style.top=y+'px';el.style.color=c||'#FFD700';document.body.appendChild(el);setTimeout(function(){if(el.parentNode) el.parentNode.removeChild(el);},1000);}
+        var cheers=['🌟 رائع!','💪 قوة!','🔥 استمر!','⚡ مذهل!'];
+        function levelUp(){G.level++;G.totalLevels++;G.clicksDone=0;G.clicksNeeded=need();G.gold+=goldR();G.bombsHit=0;G.candiesMissed=0;clearItems();sfx('levelup');showToast(cheers[Math.floor(Math.random()*cheers.length)]);if(G.level>=100){G.gameStarted=false;showToast('🏆 مبروك!');}else{showLevelUp();}G.quests.level5=Math.min(5,G.quests.level5+1);updateUI();save();}
+        function clearItems(){var items=document.querySelectorAll('.falling-item');for(var i=0;i<items.length;i++){if(items[i].parentNode) items[i].parentNode.removeChild(items[i]);}}
+        function showLevelUp(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}G.gameStarted=false;document.getElementById('nextLevelName').textContent=levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('transitionReward').textContent=goldR();openModal('levelTransition');}
+        function continueLevel(){closeModal('levelTransition');beginPlay();}
+
+        // ========== فحص العناصر الفائتة (الإصلاح الكامل) ==========
+        function checkMissed(){
+            if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;
+            var ga=document.getElementById('gameArea');if(!ga) return;
+            var gr=ga.getBoundingClientRect(),gy=gr.height-60;
+            var items=document.querySelectorAll('.falling-item');
+            for(var i=0;i<items.length;i++){
+                var item=items[i];
+                if(item.dataset.checked==='true') continue;
+                var ir=item.getBoundingClientRect();
+                var itemBottom=ir.bottom-gr.top;
+                // تجاوز الخط الأحمر
+                if(itemBottom>=gy){
+                    item.dataset.checked='true';
+                    if(item.dataset.t==='candy'){
+                        G.candiesMissed++;
+                        var p=penalty();
+                        G.clicksDone=Math.max(0,G.clicksDone-p);
+                        showMissedText(ir.left+ir.width/2,ir.top,'🍬 فائتة! ('+G.candiesMissed+'/'+G.maxMissed+')','#ffaa00');
+                        if(G.candiesMissed>=G.maxMissed){
+                            lose('candies');
+                            return;
+                        }
+                    } else if(item.dataset.t==='bomb'){
+                        showMissedText(ir.left+ir.width/2,ir.top,'💣 نجوت!','#4ecca3');
+                    }
+                    item.style.opacity='0';
+                    item.style.transition='opacity 0.3s';
+                    setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),300);
+                    updateUI();save();
+                }
+            }
+        }
+
+        function showMissedText(x,y,text,color){
+            var el=document.createElement('div');
+            el.style.cssText='position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:missedFloat 1.5s ease-out forwards;';
+            el.textContent=text;el.style.left=x+'px';el.style.top=y+'px';el.style.color=color;
+            document.body.appendChild(el);
+            setTimeout(function(){if(el.parentNode) el.parentNode.removeChild(el);},1500);
+        }
+
+        function lose(reason){if(G.levelFailed) return;G.levelFailed=true;G.gameStarted=false;gamePaused=false;if(spawnInt){clearInterval(spawnInt);spawnInt=null;}clearItems();G.hearts--;sfx('lose');updateUI();save();document.getElementById('loseReason').textContent=reason==='bombs'?'💣 5 قنابل!':'🍬 5 حلوى فائتة!';if(G.hearts<=0){openModal('noHeartsModal');G.waiting=true;G.waitEnd=Date.now()+10*1800*1000;if(waitInt) clearInterval(waitInt);waitInt=setInterval(updateWait,1000);}else{openModal('loseModal');}}
+        function retryLevel(){closeModal('loseModal');if(G.hearts<=0) return;beginPlay();}
+        function retryWithAd(){closeModal('loseModal');if(G.hearts<=0) return;G.clicksDone=Math.floor(G.clicksNeeded*0.3);beginPlay();showToast('📺 +30%');}
+        function giveUpLevel(){closeModal('loseModal');goToMenu();}
+        function updateWait(){var r=Math.max(0,G.waitEnd-Date.now()),ts=Math.floor(r/1000);var h=Math.floor(ts/3600),m=Math.floor((ts%3600)/60),s=ts%60;document.getElementById('waitTimer').textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;var sh=G.maxHearts-Math.ceil(r/(1800*1000));if(sh>G.hearts&&sh<=G.maxHearts){G.hearts=sh;updateUI();if(G.hearts>0&&G.waiting){G.waiting=false;closeModal('noHeartsModal');showToast('❤️ '+G.hearts+' قلوب!');}}if(r<=0){G.hearts=G.maxHearts;G.waiting=false;updateUI();closeModal('noHeartsModal');if(waitInt) clearInterval(waitInt);showToast('❤️ مكتملة!');}save();}
+
+        function upgradeClick(){if(G.gold>=upClickCost){G.gold-=upClickCost;G.clickDmg+=2;upClickCost=Math.floor(upClickCost*1.6);updateUI();save();}}
+        function upgradeGold(){if(G.gold>=upGoldCost){G.gold-=upGoldCost;G.goldMult+=10;upGoldCost=Math.floor(upGoldCost*1.8);updateUI();save();}}
+        function hireHero(){if(!G.hasHero&&G.gold>=heroCost){G.gold-=heroCost;G.hasHero=true;G.idleDmg=1;G.heroLv=1;updateUI();save();}}
+        function upgradeHero(){if(G.hasHero&&G.gold>=upHeroCost){G.gold-=upHeroCost;G.idleDmg+=2;G.heroLv++;upHeroCost=Math.floor(upHeroCost*1.9);updateUI();save();}}
+        function buyChar(id,cost){if(G.gems>=cost&&G.chars.indexOf(id)===-1){G.gems-=cost;G.chars.push(id);G.char=id;updateUI();save();showToast('✨ تم!');}else if(G.chars.indexOf(id)!==-1){G.char=id;updateUI();save();showToast('✨ مجهز!');}}
+        function doPrestige(){if(G.level<50) return;var g=Math.floor(20+G.level*0.8+G.prestige*5);G.gems+=g;G.prestige++;G.gold=0;G.level=1;G.clicksNeeded=need();G.clicksDone=0;G.clickDmg=1;G.idleDmg=0;G.hasHero=false;G.hearts=G.maxHearts;upClickCost=10;upGoldCost=80;heroCost=150;upHeroCost=300;clearItems();G.levelFailed=false;updateUI();save();showToast('🌟 +'+g+'💎');beginPlay();}
+
+        setInterval(function(){checkVIPExpire();if(G.powerActive){G.powerTimer--;if(G.powerTimer<=0) G.powerActive=false;}if(G.hasHero&&G.level<100&&G.hearts>0&&!G.levelFailed&&G.gameStarted&&!gamePaused){G.clicksDone+=G.idleDmg;if(G.clicksDone>=G.clicksNeeded) levelUp();updateUI();save();}},1000);
+
+        function toggleMusic(){musicOn=!musicOn;var t=document.getElementById('toggleMusic');if(t) t.classList.toggle('active',musicOn);}
+        function toggleSFX(){sfxOn=!sfxOn;var t=document.getElementById('toggleSFX');if(t) t.classList.toggle('active',sfxOn);}
+
+        load();updateUI();
+    </script>
+</body>
+</html>
