@@ -88,7 +88,6 @@
         .bottom-panel button.primary{background:linear-gradient(135deg,#e94560,#ff6b6b);border-color:#ff6b6b;}
         .bottom-panel button:disabled{opacity:0.35;}
 
-        /* === تكبير أيقونات التبويبات === */
         .tabs{display:flex;gap:2px;margin-bottom:2px;}
         .tab{padding:7px 12px;background:#1a1a3a;border-radius:7px 7px 0 0;cursor:pointer;font-size:1rem;font-weight:bold;border:1px solid #333;border-bottom:none;}
         .tab.active{background:#e94560;border-color:#e94560;}
@@ -109,7 +108,7 @@
         .toast{position:fixed;bottom:40%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#fff;padding:8px 16px;border-radius:14px;z-index:700;font-weight:bold;font-size:0.78rem;opacity:0;transition:opacity 0.3s;pointer-events:none;}
         .toast.show{opacity:1;}
 
-        /* زر تحديث APK عن بعد */
+        /* زر تحديث APK */
         .apk-update-btn{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;padding:8px 16px;border-radius:10px;font-size:0.8rem;font-weight:bold;cursor:pointer;margin:5px 0;width:88%;}
         .apk-update-btn:active{transform:scale(0.95);}
     </style>
@@ -150,6 +149,7 @@
         </div>
     </div>
 
+    <!-- النوافذ المنبثقة -->
     <div class="modal" id="pauseModal"><div class="modal-bg" onclick="closeModal('pauseModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('pauseModal')">✖️</button><div style="font-size:3rem;">⏸️</div><h2>إيقاف مؤقت</h2><button class="resume-btn" onclick="resumeGame()">▶️ استمرار</button><button class="retry-btn" onclick="restartLevel()">🔄 إعادة المستوى</button><button class="wait-btn" onclick="quitWithHeart()">🚪 خروج (خسارة قلب)</button></div></div>
     <div class="modal" id="loseModal"><div class="modal-bg" onclick="closeModal('loseModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('loseModal')">✖️</button><div style="font-size:3rem;">😞</div><h2>لقد خسرت!</h2><p style="color:#fff;" id="loseReason"></p><p style="color:#4ecca3;">💪 لا تستسلم!</p><button class="retry-btn" onclick="retryLevel()">🔄 أعد المحاولة</button><button class="watch-ad-btn" onclick="retryWithAd()">📺 إعلان +30%</button><button class="wait-btn" onclick="giveUpLevel()">🚪 خروج</button></div></div>
     <div class="modal" id="noHeartsModal"><div class="modal-bg" onclick="closeModal('noHeartsModal')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal('noHeartsModal')">✖️</button><div style="font-size:3rem;">💔</div><h2>نفدت القلوب!</h2><p style="color:#fff;">وقت الانتظار:</p><div style="color:#FFD700;font-size:1.5rem;" id="waitTimer">05:00:00</div><button class="watch-ad-btn" onclick="watchAdReward('hearts')">📺 إعلان لـ 3 قلوب</button><button class="wait-btn" onclick="goToMenuFromHearts()">↩️ العودة</button></div></div>
@@ -162,193 +162,1088 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        var audioCtx=null,musicOn=true,sfxOn=true;
-        function initAudio(){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}
-        function playTone(f,d,t,v){if(!audioCtx||!sfxOn) return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.1;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}catch(e){}}
-        function sfx(t){if(!sfxOn) return;switch(t){case'click':playTone(600,0.05,'square',0.07);break;case'candy':playTone(1000,0.07,'sine',0.1);break;case'bomb':playTone(45,0.18,'sawtooth',0.2);break;case'levelup':playTone(523,0.07,'sine',0.12);setTimeout(function(){playTone(659,0.07,'sine',0.12);},70);setTimeout(function(){playTone(784,0.1,'sine',0.18);},140);break;case'lose':playTone(100,0.3,'sawtooth',0.2);break;case'buy':playTone(800,0.08,'sine',0.12);setTimeout(function(){playTone(1200,0.08,'sine',0.12);},90);break;case'ach':playTone(523,0.07,'sine',0.12);setTimeout(function(){playTone(659,0.07,'sine',0.12);},70);setTimeout(function(){playTone(784,0.07,'sine',0.12);},140);setTimeout(function(){playTone(1047,0.12,'sine',0.18);},210);break;}}
+        // ============================================================
+        // 1. الصوت والمؤثرات
+        // ============================================================
+        var audioCtx = null, musicOn = true, sfxOn = true;
 
-        var G={gold:0,gems:0,level:1,clicksNeeded:30,clicksDone:0,clickDmg:1,idleDmg:0,hasHero:false,heroLv:0,prestige:0,goldMult:0,dmgMult:0,char:'superhero',chars:['superhero'],charData:{'superhero':{e:'🦸‍♂️'},'wizard':{e:'🧙‍♂️'},'robot':{e:'🤖'},'candyking':{e:'👑'}},hearts:10,maxHearts:10,waiting:false,waitEnd:0,bombsHit:0,candiesMissed:0,maxMissed:5,maxBombs:5,levelFailed:false,gameStarted:false,powerActive:false,powerTimer:0,shieldActive:false,shieldTimer:0,isVIP:false,vipExpire:0,totalClicks:0,totalLevels:0,totalBombs:0,totalCandies:0,dailyClaimed:'',dailyStreak:0,quests:{click50:0,level5:0,bomb10:0},questsClaimed:'',saveCode:''};
-        var upClickCost=10,upGoldCost=80,heroCost=150,upHeroCost=300;
-        var spawnInt=null,waitInt=null,checkInt=null,lastClick=0,gamePaused=false;
-        var levels=['السهول','الغابة','الكهف','الجبل','البركان','الصحراء','المستنقع','القلعة','البرج','السجن','المعبد','المحيط','السماء','النجوم','الهاوية'];
-        var candies=[{e:'🍬',v:2},{e:'🍭',v:3},{e:'🍫',v:4},{e:'🍩',v:5},{e:'🧁',v:7}];
-        var bombs=[{e:'💣',d:5},{e:'💥',d:10},{e:'🧨',d:18},{e:'🔥',d:12},{e:'☠️',d:35}];
-        var adLimit=5,adCount=0,adDate='';
-        var achievements=[{id:'click100',n:'👆 مبتدئ النقر',d:'انقر 100 مرة',goal:100,icon:'👆'},{id:'level10',n:'🌱 بداية الرحلة',d:'المستوى 10',goal:10,icon:'🌱'},{id:'level50',n:'🔥 في المنتصف',d:'المستوى 50',goal:50,icon:'🔥'},{id:'level100',n:'👑 بطل الحلوى',d:'المستوى 100',goal:100,icon:'👑'},{id:'bomb20',n:'💣 خبير القنابل',d:'20 قنبلة',goal:20,icon:'💣'},{id:'candy100',n:'🍬 محب الحلوى',d:'100 حلوى',goal:100,icon:'🍬'},{id:'gems500',n:'💎 ثري',d:'500 جوهرة',goal:500,icon:'💎'},{id:'prestige1',n:'🌟 بداية جديدة',d:'أعد الدورة',goal:1,icon:'🌟'}];
-        var dailyRewards=[{d:1,r:{gems:10,gold:500}},{d:2,r:{gems:20,gold:1000}},{d:3,r:{gems:30,gold:2000}},{d:4,r:{gems:50,gold:3000}},{d:5,r:{gems:80,gold:5000}},{d:6,r:{gems:100,gold:8000}},{d:7,r:{gems:200,gold:15000}}];
-
-        var UPDATE_URL='https://dzradwan2025.github.io/candyhero/index.html';
-        var CURRENT_VERSION='1.0';
-
-        // التحقق من وجود تحديث عن بعد (لـ APK)
-        function checkForUpdate(){
-            showToast('🔄 جارٍ فحص التحديثات...');
-            fetch(UPDATE_URL+'?v='+Date.now())
-                .then(function(r){return r.text();})
-                .then(function(code){
-                    if(code.length>2000){
-                        if(confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')){
-                            save();
-                            var blob=new Blob([code],{type:'text/html'});
-                            window.location.href=URL.createObjectURL(blob);
-                        }
-                    }else{
-                        showToast('✅ لديك أحدث إصدار v'+CURRENT_VERSION);
-                    }
-                })
-                .catch(function(){
-                    showToast('⚠️ تعذر الاتصال');
-                });
+        function initAudio() {
+            try { audioCtx = new(window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
         }
 
-        // دالة تحديث APK عن بعد (تفحص الإصدار)
-        function checkAPKUpdate(){
+        function playTone(f, d, t, v) {
+            if (!audioCtx || !sfxOn) return;
+            try {
+                var o = audioCtx.createOscillator(),
+                    g = audioCtx.createGain();
+                o.type = t || 'sine';
+                o.frequency.value = f;
+                g.gain.value = v || 0.1;
+                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d);
+                o.connect(g);
+                g.connect(audioCtx.destination);
+                o.start();
+                o.stop(audioCtx.currentTime + d);
+            } catch(e) {}
+        }
+
+        function sfx(t) {
+            if (!sfxOn) return;
+            switch (t) {
+                case 'click': playTone(600, 0.05, 'square', 0.07); break;
+                case 'candy': playTone(1000, 0.07, 'sine', 0.1); break;
+                case 'bomb': playTone(45, 0.18, 'sawtooth', 0.2); break;
+                case 'levelup':
+                    playTone(523, 0.07, 'sine', 0.12);
+                    setTimeout(function() { playTone(659, 0.07, 'sine', 0.12); }, 70);
+                    setTimeout(function() { playTone(784, 0.1, 'sine', 0.18); }, 140);
+                    break;
+                case 'lose': playTone(100, 0.3, 'sawtooth', 0.2); break;
+                case 'buy':
+                    playTone(800, 0.08, 'sine', 0.12);
+                    setTimeout(function() { playTone(1200, 0.08, 'sine', 0.12); }, 90);
+                    break;
+                case 'ach':
+                    playTone(523, 0.07, 'sine', 0.12);
+                    setTimeout(function() { playTone(659, 0.07, 'sine', 0.12); }, 70);
+                    setTimeout(function() { playTone(784, 0.07, 'sine', 0.12); }, 140);
+                    setTimeout(function() { playTone(1047, 0.12, 'sine', 0.18); }, 210);
+                    break;
+            }
+        }
+
+        // ============================================================
+        // 2. المتغيرات العامة
+        // ============================================================
+        var G = {
+            gold: 0,
+            gems: 0,
+            level: 1,
+            clicksNeeded: 30,
+            clicksDone: 0,
+            clickDmg: 1,
+            idleDmg: 0,
+            hasHero: false,
+            heroLv: 0,
+            prestige: 0,
+            goldMult: 0,
+            dmgMult: 0,
+            char: 'superhero',
+            chars: ['superhero'],
+            charData: {
+                'superhero': { e: '🦸‍♂️' },
+                'wizard': { e: '🧙‍♂️' },
+                'robot': { e: '🤖' },
+                'candyking': { e: '👑' }
+            },
+            hearts: 10,
+            maxHearts: 10,
+            waiting: false,
+            waitEnd: 0,
+            bombsHit: 0,
+            candiesMissed: 0,
+            maxMissed: 5,
+            maxBombs: 5,
+            levelFailed: false,
+            gameStarted: false,
+            powerActive: false,
+            powerTimer: 0,
+            shieldActive: false,
+            shieldTimer: 0,
+            isVIP: false,
+            vipExpire: 0,
+            totalClicks: 0,
+            totalLevels: 0,
+            totalBombs: 0,
+            totalCandies: 0,
+            dailyClaimed: '',
+            dailyStreak: 0,
+            quests: { click50: 0, level5: 0, bomb10: 0 },
+            questsClaimed: '',
+            saveCode: ''
+        };
+
+        var upClickCost = 10,
+            upGoldCost = 80,
+            heroCost = 150,
+            upHeroCost = 300;
+        var spawnInt = null,
+            waitInt = null,
+            checkInt = null,
+            lastClick = 0,
+            gamePaused = false;
+        var levels = ['السهول', 'الغابة', 'الكهف', 'الجبل', 'البركان', 'الصحراء', 'المستنقع', 'القلعة', 'البرج', 'السجن', 'المعبد', 'المحيط', 'السماء', 'النجوم', 'الهاوية'];
+        var candies = [{ e: '🍬', v: 2 }, { e: '🍭', v: 3 }, { e: '🍫', v: 4 }, { e: '🍩', v: 5 }, { e: '🧁', v: 7 }];
+        var bombs = [{ e: '💣', d: 5 }, { e: '💥', d: 10 }, { e: '🧨', d: 18 }, { e: '🔥', d: 12 }, { e: '☠️', d: 35 }];
+        var adLimit = 5,
+            adCount = 0,
+            adDate = '';
+        var achievements = [
+            { id: 'click100', n: '👆 مبتدئ النقر', d: 'انقر 100 مرة', goal: 100, icon: '👆' },
+            { id: 'level10', n: '🌱 بداية الرحلة', d: 'المستوى 10', goal: 10, icon: '🌱' },
+            { id: 'level50', n: '🔥 في المنتصف', d: 'المستوى 50', goal: 50, icon: '🔥' },
+            { id: 'level100', n: '👑 بطل الحلوى', d: 'المستوى 100', goal: 100, icon: '👑' },
+            { id: 'bomb20', n: '💣 خبير القنابل', d: '20 قنبلة', goal: 20, icon: '💣' },
+            { id: 'candy100', n: '🍬 محب الحلوى', d: '100 حلوى', goal: 100, icon: '🍬' },
+            { id: 'gems500', n: '💎 ثري', d: '500 جوهرة', goal: 500, icon: '💎' },
+            { id: 'prestige1', n: '🌟 بداية جديدة', d: 'أعد الدورة', goal: 1, icon: '🌟' }
+        ];
+        var dailyRewards = [
+            { d: 1, r: { gems: 10, gold: 500 } },
+            { d: 2, r: { gems: 20, gold: 1000 } },
+            { d: 3, r: { gems: 30, gold: 2000 } },
+            { d: 4, r: { gems: 50, gold: 3000 } },
+            { d: 5, r: { gems: 80, gold: 5000 } },
+            { d: 6, r: { gems: 100, gold: 8000 } },
+            { d: 7, r: { gems: 200, gold: 15000 } }
+        ];
+
+        var UPDATE_URL = 'https://dzradwan2025.github.io/candyhero/index.html';
+        var CURRENT_VERSION = '1.0';
+
+        // ============================================================
+        // 3. التحديث (اللعبة و APK)
+        // ============================================================
+        function checkForUpdate() {
+            showToast('🔄 جارٍ فحص التحديثات...');
+            fetch(UPDATE_URL + '?v=' + Date.now())
+                .then(function(r) { return r.text(); })
+                .then(function(code) {
+                    if (code.length > 2000) {
+                        if (confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')) {
+                            save();
+                            var blob = new Blob([code], { type: 'text/html' });
+                            window.location.href = URL.createObjectURL(blob);
+                        }
+                    } else {
+                        showToast('✅ لديك أحدث إصدار v' + CURRENT_VERSION);
+                    }
+                })
+                .catch(function() { showToast('⚠️ تعذر الاتصال'); });
+        }
+
+        function checkAPKUpdate() {
             showToast('📱 جارٍ فحص تحديث APK...');
-            fetch('https://dzradwan2025.github.io/candyhero/version.json?v='+Date.now())
-                .then(function(r){return r.json();})
-                .then(function(data){
-                    if(data.version && data.version > CURRENT_VERSION){
-                        if(confirm('📱 يوجد تحديث جديد للتطبيق (الإصدار '+data.version+')\n\nهل تريد تحميله؟')){
+            fetch('https://dzradwan2025.github.io/candyhero/version.json?v=' + Date.now())
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.version && data.version > CURRENT_VERSION) {
+                        if (confirm('📱 يوجد تحديث جديد للتطبيق (الإصدار ' + data.version + ')\n\nهل تريد تحميله؟')) {
                             window.location.href = data.download_url || 'https://dzradwan2025.github.io/candyhero/app-release.apk';
                         }
-                    }else{
-                        showToast('✅ التطبيق محدث (الإصدار '+CURRENT_VERSION+')');
+                    } else {
+                        showToast('✅ التطبيق محدث (الإصدار ' + CURRENT_VERSION + ')');
                     }
                 })
-                .catch(function(){
-                    showToast('⚠️ تعذر فحص تحديث APK');
-                });
+                .catch(function() { showToast('⚠️ تعذر فحص تحديث APK'); });
         }
 
-        function save(){localStorage.setItem('CHF8',JSON.stringify({G:G,ucc:upClickCost,ugc:upGoldCost,hc:heroCost,uhc:upHeroCost,adc:adCount,add:adDate}));}
-        function load(){var s=localStorage.getItem('CHF8');if(s){var d=JSON.parse(s);G=d.G||G;upClickCost=d.ucc||10;upGoldCost=d.ugc||80;heroCost=d.hc||150;upHeroCost=d.uhc||300;adCount=d.adc||0;adDate=d.add||'';if(!G.chars) G.chars=['superhero'];if(!G.hearts) G.hearts=10;if(!G.maxMissed) G.maxMissed=5;if(!G.maxBombs) G.maxBombs=5;if(!G.totalClicks) G.totalClicks=0;if(!G.totalLevels) G.totalLevels=0;if(!G.totalBombs) G.totalBombs=0;if(!G.totalCandies) G.totalCandies=0;if(!G.quests) G.quests={click50:0,level5:0,bomb10:0};if(G.isVIP) document.getElementById('vipBadge').style.display='inline';}updateUI();}
-        function dmg(){var d=Math.floor((G.clickDmg+G.prestige*2)*(1+G.dmgMult/100));if(G.powerActive) d*=3;return d;}
-        function goldR(){return Math.floor(G.level*5*(1+G.goldMult/100));}
-        function speed(){if(G.level<=3) return 1;if(G.level<=8) return 1+(G.level-3)*0.08;if(G.level<=20) return 1.4+(G.level-8)*0.1;if(G.level<=50) return 2.6+(G.level-20)*0.12;if(G.level<=80) return 6.2+(G.level-50)*0.15;return 10.7+(G.level-80)*0.2;}
-        function spawnT(){if(G.level<=3) return 1500;if(G.level<=10) return Math.max(600,1400-(G.level*80));if(G.level<=30) return Math.max(350,800-(G.level*20));return Math.max(180,400-(G.level*5));}
-        function fallT(){if(G.level<=3) return 5;if(G.level<=10) return Math.max(2.5,5-(G.level*0.25));if(G.level<=30) return Math.max(1.2,3-(G.level*0.08));return Math.max(0.6,1.5-(G.level*0.02));}
-        function penalty(){if(G.level<=5) return 1;if(G.level<=15) return Math.floor(2+G.level*0.2);if(G.level<=40) return Math.floor(4+G.level*0.4);if(G.level<=70) return Math.floor(8+G.level*0.6);return Math.floor(12+G.level*1);}
-        function diff(){if(G.level<=3) return{n:'سهل جداً',b:0.1};if(G.level<=8) return{n:'سهل',b:0.2};if(G.level<=20) return{n:'متوسط',b:0.3};if(G.level<=40) return{n:'صعب',b:0.45};if(G.level<=65) return{n:'صعب جداً',b:0.6};if(G.level<=85) return{n:'خارق',b:0.8};return{n:'مستحيل',b:1.0};}
-        function need(){if(G.level<=3) return 30;if(G.level<=10) return Math.floor(30+G.level*3);if(G.level<=30) return Math.floor(60+G.level*4);if(G.level<=60) return Math.floor(100+G.level*5);if(G.level<=90) return Math.floor(180+G.level*6);return Math.floor(250+G.level*7);}
-        function fmt(n){if(!n) return'0';n=Math.floor(n);if(n>=1e9) return(n/1e9).toFixed(1)+'B';if(n>=1e6) return(n/1e6).toFixed(1)+'M';if(n>=1e3) return(n/1e3).toFixed(1)+'K';return n.toString();}
-        function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1600);}
-        function closeModal(id){var el=document.getElementById(id);if(el) el.classList.remove('show');}
-        function openModal(id){
-            var el=document.getElementById(id);if(!el) return;
-            if(id==='dailyModal') prepareDailyModal();
-            if(id==='questsModal') prepareQuestsModal();
-            if(id==='achievementsModal') prepareAchievementsModal();
+        // ============================================================
+        // 4. الحفظ والتحميل
+        // ============================================================
+        function save() {
+            localStorage.setItem('CHF8', JSON.stringify({
+                G: G,
+                ucc: upClickCost,
+                ugc: upGoldCost,
+                hc: heroCost,
+                uhc: upHeroCost,
+                adc: adCount,
+                add: adDate
+            }));
+        }
+
+        function load() {
+            var s = localStorage.getItem('CHF8');
+            if (s) {
+                var d = JSON.parse(s);
+                G = d.G || G;
+                upClickCost = d.ucc || 10;
+                upGoldCost = d.ugc || 80;
+                heroCost = d.hc || 150;
+                upHeroCost = d.uhc || 300;
+                adCount = d.adc || 0;
+                adDate = d.add || '';
+                if (!G.chars) G.chars = ['superhero'];
+                if (!G.hearts) G.hearts = 10;
+                if (!G.maxMissed) G.maxMissed = 5;
+                if (!G.maxBombs) G.maxBombs = 5;
+                if (!G.totalClicks) G.totalClicks = 0;
+                if (!G.totalLevels) G.totalLevels = 0;
+                if (!G.totalBombs) G.totalBombs = 0;
+                if (!G.totalCandies) G.totalCandies = 0;
+                if (!G.quests) G.quests = { click50: 0, level5: 0, bomb10: 0 };
+                if (G.isVIP) document.getElementById('vipBadge').style.display = 'inline';
+            }
+            updateUI();
+        }
+
+        // ============================================================
+        // 5. دوال المساعدة
+        // ============================================================
+        function dmg() {
+            var d = Math.floor((G.clickDmg + G.prestige * 2) * (1 + G.dmgMult / 100));
+            if (G.powerActive) d *= 3;
+            return d;
+        }
+
+        function goldR() { return Math.floor(G.level * 5 * (1 + G.goldMult / 100)); }
+
+        function speed() {
+            if (G.level <= 3) return 1;
+            if (G.level <= 8) return 1 + (G.level - 3) * 0.08;
+            if (G.level <= 20) return 1.4 + (G.level - 8) * 0.1;
+            if (G.level <= 50) return 2.6 + (G.level - 20) * 0.12;
+            if (G.level <= 80) return 6.2 + (G.level - 50) * 0.15;
+            return 10.7 + (G.level - 80) * 0.2;
+        }
+
+        function spawnT() {
+            if (G.level <= 3) return 1500;
+            if (G.level <= 10) return Math.max(600, 1400 - (G.level * 80));
+            if (G.level <= 30) return Math.max(350, 800 - (G.level * 20));
+            return Math.max(180, 400 - (G.level * 5));
+        }
+
+        function fallT() {
+            if (G.level <= 3) return 5;
+            if (G.level <= 10) return Math.max(2.5, 5 - (G.level * 0.25));
+            if (G.level <= 30) return Math.max(1.2, 3 - (G.level * 0.08));
+            return Math.max(0.6, 1.5 - (G.level * 0.02));
+        }
+
+        function penalty() {
+            if (G.level <= 5) return 1;
+            if (G.level <= 15) return Math.floor(2 + G.level * 0.2);
+            if (G.level <= 40) return Math.floor(4 + G.level * 0.4);
+            if (G.level <= 70) return Math.floor(8 + G.level * 0.6);
+            return Math.floor(12 + G.level * 1);
+        }
+
+        function diff() {
+            if (G.level <= 3) return { n: 'سهل جداً', b: 0.1 };
+            if (G.level <= 8) return { n: 'سهل', b: 0.2 };
+            if (G.level <= 20) return { n: 'متوسط', b: 0.3 };
+            if (G.level <= 40) return { n: 'صعب', b: 0.45 };
+            if (G.level <= 65) return { n: 'صعب جداً', b: 0.6 };
+            if (G.level <= 85) return { n: 'خارق', b: 0.8 };
+            return { n: 'مستحيل', b: 1.0 };
+        }
+
+        function need() {
+            if (G.level <= 3) return 30;
+            if (G.level <= 10) return Math.floor(30 + G.level * 3);
+            if (G.level <= 30) return Math.floor(60 + G.level * 4);
+            if (G.level <= 60) return Math.floor(100 + G.level * 5);
+            if (G.level <= 90) return Math.floor(180 + G.level * 6);
+            return Math.floor(250 + G.level * 7);
+        }
+
+        function fmt(n) {
+            if (!n) return '0';
+            n = Math.floor(n);
+            if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+            if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+            return n.toString();
+        }
+
+        function showToast(m) {
+            var t = document.getElementById('toast');
+            t.textContent = m;
+            t.classList.add('show');
+            clearTimeout(t._t);
+            t._t = setTimeout(function() { t.classList.remove('show'); }, 1600);
+        }
+
+        function closeModal(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.remove('show');
+        }
+
+        function openModal(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            if (id === 'dailyModal') prepareDailyModal();
+            if (id === 'questsModal') prepareQuestsModal();
+            if (id === 'achievementsModal') prepareAchievementsModal();
             el.classList.add('show');
         }
 
-        function openPauseMenu(){if(!G.gameStarted) return;gamePaused=true;G.gameStarted=false;if(spawnInt){clearInterval(spawnInt);spawnInt=null;}openModal('pauseModal');}
-        function resumeGame(){closeModal('pauseModal');gamePaused=false;G.gameStarted=true;startSpawning();updateUI();save();}
-        function restartLevel(){closeModal('pauseModal');gamePaused=false;G.clicksDone=0;G.bombsHit=0;G.candiesMissed=0;G.levelFailed=false;clearItems();beginPlay();}
-        function quitWithHeart(){closeModal('pauseModal');gamePaused=false;G.levelFailed=true;if(G.hearts>0){G.hearts--;updateUI();save();sfx('lose');if(G.hearts<=0){openModal('noHeartsModal');G.waiting=true;G.waitEnd=Date.now()+10*1800*1000;if(waitInt) clearInterval(waitInt);waitInt=setInterval(updateWait,1000);}}goToMenu();}
-
-        function prepareAchievementsModal(){var html='';achievements.forEach(function(a){html+='<div class="ach-item'+(G['ach_'+a.id]?'':' ach-locked')+'"><span class="ach-icon">'+(G['ach_'+a.id]?'✅':a.icon)+'</span><div style="flex:1;"><b>'+a.n+'</b><br><small>'+a.d+'</small></div></div>';});document.getElementById('achContent').innerHTML=html;}
-        function prepareDailyModal(){var today=new Date().toDateString();if(G.dailyClaimed===today){document.getElementById('dailyContent').innerHTML='<p style="color:#FFD700;">✅ تم استلام المكافأة اليوم!</p>';return;}var html='<p style="color:#fff;">🎁 مكافآت متتالية:</p>';var streak=G.dailyStreak||0;dailyRewards.forEach(function(dr,i){var isToday=i===streak%7;html+='<div class="daily-item'+(isToday?'" style="border:2px solid #FFD700;':'')+'"><span>يوم '+dr.d+': 💎'+dr.r.gems+' + 🪙'+dr.r.gold+'</span><span>'+(i<streak?'✅':isToday?'🎁':'🔒')+'</span></div>';});html+='<button class="watch-ad-btn" onclick="claimDaily()">🎁 استلم المكافأة</button>';document.getElementById('dailyContent').innerHTML=html;}
-        function claimDaily(){var today=new Date().toDateString();if(G.dailyClaimed===today) return;var idx=(G.dailyStreak||0)%7;var reward=dailyRewards[idx];G.gems+=reward.r.gems;G.gold+=reward.r.gold;G.dailyStreak=(G.dailyStreak||0)+1;G.dailyClaimed=today;prepareDailyModal();updateUI();save();sfx('buy');showToast('🎁 +'+reward.r.gems+'💎');}
-        function prepareQuestsModal(){var today=new Date().toDateString();if(G.questsClaimed!==today){G.quests={click50:0,level5:0,bomb10:0};G.questsClaimed=today;}var qs=[{n:'👆 انقر 50 مرة',v:G.quests.click50,g:50,r:30},{n:'🏆 اربح 5 مستويات',v:G.quests.level5,g:5,r:50},{n:'💣 اضغط 10 قنابل',v:G.quests.bomb10,g:10,r:20}];var html='';qs.forEach(function(q,i){var done=q.v>=q.g;html+='<div class="quest-item"><span>'+q.n+'</span><span>'+(done?'✅':q.v+'/'+q.g)+'</span>'+(done&&!G['q_'+i]?'<button onclick="claimQuest('+i+')" style="width:auto;padding:4px 8px;font-size:0.6rem;">💎'+q.r+'</button>':'')+'</div>';});document.getElementById('questsContent').innerHTML=html;}
-        function claimQuest(i){var rewards=[30,50,20];if(G['q_'+i]) return;G.gems+=rewards[i];G['q_'+i]=true;prepareQuestsModal();updateUI();save();sfx('buy');showToast('🎯 +'+rewards[i]+'💎');}
-
-        function openShop(){showShopModal();}
-        function showShopModal(){var el=document.getElementById('shopModal');if(el){el.classList.add('show');return;}var d=document.createElement('div');d.id='shopModal';d.className='modal';d.innerHTML='<div class="modal-bg" onclick="closeModal(\'shopModal\')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button><h2>🛒 المتجر</h2><div style="width:100%;max-height:220px;overflow-y:auto;"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div><div class="shop-item" style="margin-top:8px;border:2px solid #ff6b6b;"><div class="shop-item-info">📱 تحديث التطبيق (APK)</div><button class="apk-update-btn" onclick="checkAPKUpdate();closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">🔄</button></div></div></div>';document.body.appendChild(d);setTimeout(function(){d.classList.add('show');},50);}
-
-        function saveToCloudLocal(){if(!G.isVIP){showToast('⚠️ VIP فقط!');return;}if(!G.saveCode) G.saveCode=prompt('أدخل رمز الحفظ:','')||'player1';var cd={G:G,ucc:upClickCost,ugc:upGoldCost,hc:heroCost,uhc:upHeroCost};localStorage.setItem('CLOUD_'+G.saveCode,JSON.stringify(cd));showToast('☁️ تم الحفظ!');}
-        function loadFromCloudLocal(){if(!G.isVIP){showToast('⚠️ VIP فقط!');return;}var code=prompt('أدخل رمز الحفظ:','')||'player1';var cloud=localStorage.getItem('CLOUD_'+code);if(cloud){var d=JSON.parse(cloud);G=d.G||G;upClickCost=d.ucc||10;upGoldCost=d.ugc||80;heroCost=d.hc||150;upHeroCost=d.uhc||300;G.saveCode=code;save();updateUI();showToast('📥 مرحباً بعودتك!');}else{showToast('❌ لم يتم العثور على حفظ');}}
-
-        function watchAdReward(type){var today=new Date().toDateString();if(adDate!==today){adCount=0;adDate=today;}if(G.isVIP){giveReward(type);return;}if(adCount>=adLimit){showToast('⚠️ الحد اليومي! VIP غير محدود');return;}showToast('📺 جارٍ التحميل...');adCount++;setTimeout(function(){giveReward(type);},1000);}
-        function giveReward(type){switch(type){case'gems':G.gems+=50;showToast('✅ +50 💎');break;case'gold':G.gold+=5000;showToast('✅ +5000 🪙');break;case'power':G.powerActive=true;G.powerTimer=300;showToast('⚡ ×3!');break;case'hearts':G.hearts=Math.min(G.maxHearts,G.hearts+3);closeModal('noHeartsModal');showToast('❤️ +3!');break;}updateUI();save();}
-        function buyWithMoney(type){var prices={},desc={},period='';switch(type){case'gems_500':prices='$0.10';desc='💎 500 جوهرة';break;case'vip_month':prices='$0.99';desc='👑 VIP شهري';period='30 يوماً';break;case'vip_forever':prices='$4.99';desc='👑 VIP دائم';period='للأبد';break;}var msg='💳 تأكيد:\n\n'+desc+'\nالسعر: '+prices;if(period) msg+='\nالمدة: '+period;if(!confirm(msg)) return;showToast('💳 جارٍ المعالجة...');setTimeout(function(){switch(type){case'gems_500':G.gems+=500;break;case'vip_month':activateVIP(30);break;case'vip_forever':activateVIP(99999);break;}updateUI();save();sfx('buy');},700);}
-        function activateVIP(days){G.isVIP=true;G.maxHearts=20;G.hearts=20;G.dmgMult+=100;G.vipExpire=days>=99999?9999999999999:Date.now()+(days*86400000);document.getElementById('vipBadge').style.display='inline';showToast('👑 VIP!');save();}
-        function checkVIPExpire(){if(G.isVIP&&G.vipExpire&&G.vipExpire<Date.now()&&G.vipExpire<999999999999){G.isVIP=false;G.maxHearts=10;if(G.hearts>10) G.hearts=10;G.dmgMult-=100;document.getElementById('vipBadge').style.display='none';showToast('⚠️ انتهى VIP!');save();}}
-
-        function checkAchievements(){achievements.forEach(function(a){var val=0;switch(a.id){case'click100':val=G.totalClicks;break;case'level10':case'level50':case'level100':val=G.level;break;case'bomb20':val=G.totalBombs;break;case'candy100':val=G.totalCandies;break;case'gems500':val=G.gems;break;case'prestige1':val=G.prestige;break;}if(val>=a.goal&&!G['ach_'+a.id]){G['ach_'+a.id]=true;G.gems+=a.goal>=50?30:15;showToast('🏅 '+a.n+'!');sfx('ach');}});updateUI();save();}
-
-        function startGame(){document.getElementById('mainMenu').style.display='none';document.getElementById('gameScreen').classList.add('active');initAudio();G.clicksNeeded=need();document.getElementById('startOverlay').style.display='flex';document.getElementById('startLevel').textContent=G.level;updateUI();if(G.isVIP) document.getElementById('vipBadge').style.display='inline';if(checkInt) clearInterval(checkInt);checkInt=setInterval(checkMissed,200);setInterval(save,10000);}
-        function beginPlay(){document.getElementById('startOverlay').style.display='none';G.levelFailed=false;G.gameStarted=true;gamePaused=false;G.bombsHit=0;G.candiesMissed=0;G.clicksDone=0;startSpawning();updateUI();save();}
-        function goToMenu(){G.gameStarted=false;gamePaused=false;if(spawnInt){clearInterval(spawnInt);spawnInt=null;}clearItems();document.getElementById('gameScreen').classList.remove('active');document.getElementById('mainMenu').style.display='flex';document.getElementById('menuHearts').textContent=G.hearts;document.getElementById('menuGems').textContent=G.gems;save();}
-        function goToMenuFromHearts(){closeModal('noHeartsModal');if(waitInt) clearInterval(waitInt);goToMenu();}
-        function switchTab(n){var ts=document.querySelectorAll('.tab'),cs=document.querySelectorAll('.tab-content');for(var i=0;i<ts.length;i++) ts[i].classList.remove('active');for(var j=0;j<cs.length;j++) cs[j].classList.remove('active');var m={'upgrades':0,'heroes':1,'shop':2,'ads':3,'prestige':4};ts[m[n]].classList.add('active');document.getElementById('tab-'+n).classList.add('active');}
-
-        function updateUI(){var d=diff(),sp=speed();document.getElementById('goldDisplay').textContent=fmt(G.gold);document.getElementById('gemsDisplay').textContent=fmt(G.gems);document.getElementById('levelDisplay').textContent=G.level;document.getElementById('levelTitle').textContent='⚔️ '+levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('difficultyText').textContent=d.n;document.getElementById('clicksRemaining').textContent=Math.max(0,G.clicksNeeded-G.clicksDone);document.getElementById('levelTarget').textContent=G.clicksNeeded;document.getElementById('progressBarFill').style.width=Math.min(100,(G.clicksDone/G.clicksNeeded)*100)+'%';document.getElementById('speedDisplay').textContent=sp.toFixed(1)+'x';document.getElementById('bombsHit').textContent=G.bombsHit;document.getElementById('candiesMissed').textContent=G.candiesMissed;document.getElementById('heartsDisplay').textContent=G.hearts;document.getElementById('menuHearts').textContent=G.hearts;document.getElementById('menuGems').textContent=G.gems;document.getElementById('upgradeClickCost').textContent=fmt(upClickCost);document.getElementById('upgradeGoldCost').textContent=fmt(upGoldCost);document.getElementById('heroCost').textContent=fmt(heroCost);document.getElementById('upgradeHeroCost').textContent=fmt(upHeroCost);document.getElementById('btnUpgradeClick').disabled=G.gold<upClickCost;document.getElementById('btnUpgradeGold').disabled=G.gold<upGoldCost;document.getElementById('btnHireHero').disabled=G.hasHero||G.gold<heroCost;document.getElementById('btnUpgradeHero').disabled=!G.hasHero||G.gold<upHeroCost;document.getElementById('btnPrestige').disabled=G.level<50;document.getElementById('prestigeGems').textContent=Math.floor(20+G.level*0.8+G.prestige*5);document.getElementById('character').textContent=G.charData[G.char].e;document.getElementById('menuHero').textContent=G.charData[G.char].e;checkAchievements();}
-
-        function startSpawning(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}if(G.level<100&&G.hearts>0&&!G.levelFailed&&G.gameStarted&&!gamePaused){spawnInt=setInterval(spawn,spawnT());}}
-        function spawn(){if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;var mx=G.level<=3?3:G.level<=10?5:G.level<=25?7:G.level<=50?8:10;if(document.querySelectorAll('.falling-item').length>mx) return;var item=document.createElement('div');item.className='falling-item';var d=diff(),isB=Math.random()<d.b;if(isB){var b=bombs[Math.floor(Math.random()*bombs.length)];item.textContent=b.e;item.dataset.t='bomb';item.dataset.v=b.d+Math.floor(G.level/5);}else{var c=candies[Math.floor(Math.random()*candies.length)];item.textContent=c.e;item.dataset.t='candy';item.dataset.v=c.v;}item.dataset.clicked='false';item.dataset.checked='false';item.style.left=(Math.random()*80+5)+'%';item.style.top='-45px';var ft=fallT();item.style.animation='fall '+ft+'s linear';
-            item.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();clickItem(item,e);});
-            item.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();clickItem(item,e);},{passive:false});
-            document.getElementById('gameArea').appendChild(item);
-            setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),(ft+0.8)*1000);
+        // ============================================================
+        // 6. دوال القائمة الرئيسية واللعبة
+        // ============================================================
+        function startGame() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('gameScreen').classList.add('active');
+            initAudio();
+            G.clicksNeeded = need();
+            document.getElementById('startOverlay').style.display = 'flex';
+            document.getElementById('startLevel').textContent = G.level;
+            updateUI();
+            if (G.isVIP) document.getElementById('vipBadge').style.display = 'inline';
+            if (checkInt) clearInterval(checkInt);
+            checkInt = setInterval(checkMissed, 200);
+            setInterval(save, 10000);
         }
 
-        function clickItem(item,e){if(!G.gameStarted||G.hearts<=0||G.levelFailed||gamePaused) return;if(item.dataset.clicked==='true') return;var now=Date.now();if(now-lastClick<55) return;lastClick=now;item.dataset.clicked='true';item.dataset.checked='true';var t=item.dataset.t,v=parseInt(item.dataset.v);var r=item.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;if(t==='bomb'){if(G.shieldActive){showFloat('🛡️',x,y,'#00cec9');}else{G.bombsHit++;G.totalBombs++;G.clicksDone=Math.max(0,G.clicksDone-v);showFloat('💥 -'+v,x,y,'#ff4444');sfx('bomb');if(G.bombsHit>=G.maxBombs){lose('bombs');return;}}}else{G.totalCandies++;G.clicksDone+=v*dmg();G.totalClicks++;showFloat('+'+v*dmg(),x,y,'#ff69b4');sfx('candy');if(G.clicksDone>=G.clicksNeeded) levelUp();}G.quests.bomb10=Math.min(10,G.quests.bomb10+(t==='bomb'?1:0));G.quests.click50=Math.min(50,G.quests.click50+1);item.style.transform='scale(0)';item.style.opacity='0';setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),150);updateUI();save();}
-        function showFloat(t,x,y,c){var el=document.createElement('div');el.style.cssText='position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:burst 1s ease-out forwards;';el.textContent=t;el.style.left=x+'px';el.style.top=y+'px';el.style.color=c||'#FFD700';document.body.appendChild(el);setTimeout(function(){if(el.parentNode) el.parentNode.removeChild(el);},1000);}
-        var cheers=['🌟 رائع!','💪 قوة!','🔥 استمر!','⚡ مذهل!'];
-        function levelUp(){G.level++;G.totalLevels++;G.clicksDone=0;G.clicksNeeded=need();G.gold+=goldR();G.bombsHit=0;G.candiesMissed=0;clearItems();sfx('levelup');showToast(cheers[Math.floor(Math.random()*cheers.length)]);if(G.level>=100){G.gameStarted=false;showToast('🏆 مبروك!');}else{showLevelUp();}G.quests.level5=Math.min(5,G.quests.level5+1);updateUI();save();}
-        function clearItems(){var items=document.querySelectorAll('.falling-item');for(var i=0;i<items.length;i++){if(items[i].parentNode) items[i].parentNode.removeChild(items[i]);}}
-        function showLevelUp(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}G.gameStarted=false;document.getElementById('nextLevelName').textContent=levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('transitionReward').textContent=goldR();openModal('levelTransition');}
-        function continueLevel(){closeModal('levelTransition');beginPlay();}
+        function beginPlay() {
+            document.getElementById('startOverlay').style.display = 'none';
+            G.levelFailed = false;
+            G.gameStarted = true;
+            gamePaused = false;
+            G.bombsHit = 0;
+            G.candiesMissed = 0;
+            G.clicksDone = 0;
+            startSpawning();
+            updateUI();
+            save();
+        }
 
-        function checkMissed(){
-            if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;
-            var ga=document.getElementById('gameArea');if(!ga) return;
-            var gr=ga.getBoundingClientRect(),gy=gr.height-60;
-            var items=document.querySelectorAll('.falling-item');
-            for(var i=0;i<items.length;i++){
-                var item=items[i];
-                if(item.dataset.checked==='true') continue;
-                var ir=item.getBoundingClientRect();
-                var itemBottom=ir.bottom-gr.top;
-                if(itemBottom>=gy){
-                    item.dataset.checked='true';
-                    if(item.dataset.t==='candy'){
+        function goToMenu() {
+            G.gameStarted = false;
+            gamePaused = false;
+            if (spawnInt) { clearInterval(spawnInt);
+                spawnInt = null; }
+            clearItems();
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('mainMenu').style.display = 'flex';
+            document.getElementById('menuHearts').textContent = G.hearts;
+            document.getElementById('menuGems').textContent = G.gems;
+            save();
+        }
+
+        function goToMenuFromHearts() {
+            closeModal('noHeartsModal');
+            if (waitInt) clearInterval(waitInt);
+            goToMenu();
+        }
+
+        function openPauseMenu() {
+            if (!G.gameStarted) return;
+            gamePaused = true;
+            G.gameStarted = false;
+            if (spawnInt) { clearInterval(spawnInt);
+                spawnInt = null; }
+            openModal('pauseModal');
+        }
+
+        function resumeGame() {
+            closeModal('pauseModal');
+            gamePaused = false;
+            G.gameStarted = true;
+            startSpawning();
+            updateUI();
+            save();
+        }
+
+        function restartLevel() {
+            closeModal('pauseModal');
+            gamePaused = false;
+            G.clicksDone = 0;
+            G.bombsHit = 0;
+            G.candiesMissed = 0;
+            G.levelFailed = false;
+            clearItems();
+            beginPlay();
+        }
+
+        function quitWithHeart() {
+            closeModal('pauseModal');
+            gamePaused = false;
+            G.levelFailed = true;
+            if (G.hearts > 0) {
+                G.hearts--;
+                updateUI();
+                save();
+                sfx('lose');
+                if (G.hearts <= 0) {
+                    openModal('noHeartsModal');
+                    G.waiting = true;
+                    G.waitEnd = Date.now() + 10 * 1800 * 1000;
+                    if (waitInt) clearInterval(waitInt);
+                    waitInt = setInterval(updateWait, 1000);
+                }
+            }
+            goToMenu();
+        }
+
+        // ============================================================
+        // 7. دوال النوافذ المنبثقة (المكافآت، المهمات، الإنجازات)
+        // ============================================================
+        function prepareAchievementsModal() {
+            var html = '';
+            achievements.forEach(function(a) {
+                html += '<div class="ach-item' + (G['ach_' + a.id] ? '' : ' ach-locked') + '">' +
+                    '<span class="ach-icon">' + (G['ach_' + a.id] ? '✅' : a.icon) + '</span>' +
+                    '<div style="flex:1;"><b>' + a.n + '</b><br><small>' + a.d + '</small></div></div>';
+            });
+            document.getElementById('achContent').innerHTML = html;
+        }
+
+        function prepareDailyModal() {
+            var today = new Date().toDateString();
+            if (G.dailyClaimed === today) {
+                document.getElementById('dailyContent').innerHTML = '<p style="color:#FFD700;">✅ تم استلام المكافأة اليوم!</p>';
+                return;
+            }
+            var html = '<p style="color:#fff;">🎁 مكافآت متتالية:</p>';
+            var streak = G.dailyStreak || 0;
+            dailyRewards.forEach(function(dr, i) {
+                var isToday = i === streak % 7;
+                html += '<div class="daily-item' + (isToday ? '" style="border:2px solid #FFD700;' : '') + '">' +
+                    '<span>يوم ' + dr.d + ': 💎' + dr.r.gems + ' + 🪙' + dr.r.gold + '</span>' +
+                    '<span>' + (i < streak ? '✅' : isToday ? '🎁' : '🔒') + '</span></div>';
+            });
+            html += '<button class="watch-ad-btn" onclick="claimDaily()">🎁 استلم المكافأة</button>';
+            document.getElementById('dailyContent').innerHTML = html;
+        }
+
+        function claimDaily() {
+            var today = new Date().toDateString();
+            if (G.dailyClaimed === today) return;
+            var idx = (G.dailyStreak || 0) % 7;
+            var reward = dailyRewards[idx];
+            G.gems += reward.r.gems;
+            G.gold += reward.r.gold;
+            G.dailyStreak = (G.dailyStreak || 0) + 1;
+            G.dailyClaimed = today;
+            prepareDailyModal();
+            updateUI();
+            save();
+            sfx('buy');
+            showToast('🎁 +' + reward.r.gems + '💎');
+        }
+
+        function prepareQuestsModal() {
+            var today = new Date().toDateString();
+            if (G.questsClaimed !== today) {
+                G.quests = { click50: 0, level5: 0, bomb10: 0 };
+                G.questsClaimed = today;
+            }
+            var qs = [
+                { n: '👆 انقر 50 مرة', v: G.quests.click50, g: 50, r: 30 },
+                { n: '🏆 اربح 5 مستويات', v: G.quests.level5, g: 5, r: 50 },
+                { n: '💣 اضغط 10 قنابل', v: G.quests.bomb10, g: 10, r: 20 }
+            ];
+            var html = '';
+            qs.forEach(function(q, i) {
+                var done = q.v >= q.g;
+                html += '<div class="quest-item"><span>' + q.n + '</span>' +
+                    '<span>' + (done ? '✅' : q.v + '/' + q.g) + '</span>' +
+                    (done && !G['q_' + i] ? '<button onclick="claimQuest(' + i + ')" style="width:auto;padding:4px 8px;font-size:0.6rem;">💎' + q.r + '</button>' : '') +
+                    '</div>';
+            });
+            document.getElementById('questsContent').innerHTML = html;
+        }
+
+        function claimQuest(i) {
+            var rewards = [30, 50, 20];
+            if (G['q_' + i]) return;
+            G.gems += rewards[i];
+            G['q_' + i] = true;
+            prepareQuestsModal();
+            updateUI();
+            save();
+            sfx('buy');
+            showToast('🎯 +' + rewards[i] + '💎');
+        }
+
+        // ============================================================
+        // 8. المتجر
+        // ============================================================
+        function openShop() { showShopModal(); }
+
+        function showShopModal() {
+            var el = document.getElementById('shopModal');
+            if (el) { el.classList.add('show'); return; }
+            var d = document.createElement('div');
+            d.id = 'shopModal';
+            d.className = 'modal';
+            d.innerHTML = '<div class="modal-bg" onclick="closeModal(\'shopModal\')"></div>' +
+                '<div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button>' +
+                '<h2>🛒 المتجر</h2>' +
+                '<div style="width:100%;max-height:220px;overflow-y:auto;">' +
+                '<div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div>' +
+                '<div class="shop-item" style="margin-top:8px;border:2px solid #ff6b6b;"><div class="shop-item-info">📱 تحديث التطبيق (APK)</div><button class="apk-update-btn" onclick="checkAPKUpdate();closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">🔄</button></div>' +
+                '</div></div>';
+            document.body.appendChild(d);
+            setTimeout(function() { d.classList.add('show'); }, 50);
+        }
+
+        function saveToCloudLocal() {
+            if (!G.isVIP) { showToast('⚠️ VIP فقط!'); return; }
+            if (!G.saveCode) G.saveCode = prompt('أدخل رمز الحفظ:', '') || 'player1';
+            var cd = { G: G, ucc: upClickCost, ugc: upGoldCost, hc: heroCost, uhc: upHeroCost };
+            localStorage.setItem('CLOUD_' + G.saveCode, JSON.stringify(cd));
+            showToast('☁️ تم الحفظ!');
+        }
+
+        function loadFromCloudLocal() {
+            if (!G.isVIP) { showToast('⚠️ VIP فقط!'); return; }
+            var code = prompt('أدخل رمز الحفظ:', '') || 'player1';
+            var cloud = localStorage.getItem('CLOUD_' + code);
+            if (cloud) {
+                var d = JSON.parse(cloud);
+                G = d.G || G;
+                upClickCost = d.ucc || 10;
+                upGoldCost = d.ugc || 80;
+                heroCost = d.hc || 150;
+                upHeroCost = d.uhc || 300;
+                G.saveCode = code;
+                save();
+                updateUI();
+                showToast('📥 مرحباً بعودتك!');
+            } else { showToast('❌ لم يتم العثور على حفظ'); }
+        }
+
+        function watchAdReward(type) {
+            var today = new Date().toDateString();
+            if (adDate !== today) { adCount = 0;
+                adDate = today; }
+            if (G.isVIP) { giveReward(type); return; }
+            if (adCount >= adLimit) { showToast('⚠️ الحد اليومي! VIP غير محدود'); return; }
+            showToast('📺 جارٍ التحميل...');
+            adCount++;
+            setTimeout(function() { giveReward(type); }, 1000);
+        }
+
+        function giveReward(type) {
+            switch (type) {
+                case 'gems':
+                    G.gems += 50;
+                    showToast('✅ +50 💎');
+                    break;
+                case 'gold':
+                    G.gold += 5000;
+                    showToast('✅ +5000 🪙');
+                    break;
+                case 'power':
+                    G.powerActive = true;
+                    G.powerTimer = 300;
+                    showToast('⚡ ×3!');
+                    break;
+                case 'hearts':
+                    G.hearts = Math.min(G.maxHearts, G.hearts + 3);
+                    closeModal('noHeartsModal');
+                    showToast('❤️ +3!');
+                    break;
+            }
+            updateUI();
+            save();
+        }
+
+        function buyWithMoney(type) {
+            var prices = {},
+                desc = {},
+                period = '';
+            switch (type) {
+                case 'gems_500':
+                    prices = '$0.10';
+                    desc = '💎 500 جوهرة';
+                    break;
+                case 'vip_month':
+                    prices = '$0.99';
+                    desc = '👑 VIP شهري';
+                    period = '30 يوماً';
+                    break;
+                case 'vip_forever':
+                    prices = '$4.99';
+                    desc = '👑 VIP دائم';
+                    period = 'للأبد';
+                    break;
+            }
+            var msg = '💳 تأكيد:\n\n' + desc + '\nالسعر: ' + prices;
+            if (period) msg += '\nالمدة: ' + period;
+            if (!confirm(msg)) return;
+            showToast('💳 جارٍ المعالجة...');
+            setTimeout(function() {
+                switch (type) {
+                    case 'gems_500':
+                        G.gems += 500;
+                        break;
+                    case 'vip_month':
+                        activateVIP(30);
+                        break;
+                    case 'vip_forever':
+                        activateVIP(99999);
+                        break;
+                }
+                updateUI();
+                save();
+                sfx('buy');
+            }, 700);
+        }
+
+        function activateVIP(days) {
+            G.isVIP = true;
+            G.maxHearts = 20;
+            G.hearts = 20;
+            G.dmgMult += 100;
+            G.vipExpire = days >= 99999 ? 9999999999999 : Date.now() + (days * 86400000);
+            document.getElementById('vipBadge').style.display = 'inline';
+            showToast('👑 VIP!');
+            save();
+        }
+
+        function checkVIPExpire() {
+            if (G.isVIP && G.vipExpire && G.vipExpire < Date.now() && G.vipExpire < 999999999999) {
+                G.isVIP = false;
+                G.maxHearts = 10;
+                if (G.hearts > 10) G.hearts = 10;
+                G.dmgMult -= 100;
+                document.getElementById('vipBadge').style.display = 'none';
+                showToast('⚠️ انتهى VIP!');
+                save();
+            }
+        }
+
+        function checkAchievements() {
+            achievements.forEach(function(a) {
+                var val = 0;
+                switch (a.id) {
+                    case 'click100':
+                        val = G.totalClicks;
+                        break;
+                    case 'level10':
+                    case 'level50':
+                    case 'level100':
+                        val = G.level;
+                        break;
+                    case 'bomb20':
+                        val = G.totalBombs;
+                        break;
+                    case 'candy100':
+                        val = G.totalCandies;
+                        break;
+                    case 'gems500':
+                        val = G.gems;
+                        break;
+                    case 'prestige1':
+                        val = G.prestige;
+                        break;
+                }
+                if (val >= a.goal && !G['ach_' + a.id]) {
+                    G['ach_' + a.id] = true;
+                    G.gems += a.goal >= 50 ? 30 : 15;
+                    showToast('🏅 ' + a.n + '!');
+                    sfx('ach');
+                }
+            });
+            updateUI();
+            save();
+        }
+
+        // ============================================================
+        // 9. دوال التبويبات وتحديث الواجهة
+        // ============================================================
+        function switchTab(n) {
+            var ts = document.querySelectorAll('.tab'),
+                cs = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < ts.length; i++) ts[i].classList.remove('active');
+            for (var j = 0; j < cs.length; j++) cs[j].classList.remove('active');
+            var m = { 'upgrades': 0, 'heroes': 1, 'shop': 2, 'ads': 3, 'prestige': 4 };
+            ts[m[n]].classList.add('active');
+            document.getElementById('tab-' + n).classList.add('active');
+        }
+
+        function updateUI() {
+            var d = diff(),
+                sp = speed();
+            document.getElementById('goldDisplay').textContent = fmt(G.gold);
+            document.getElementById('gemsDisplay').textContent = fmt(G.gems);
+            document.getElementById('levelDisplay').textContent = G.level;
+            document.getElementById('levelTitle').textContent = '⚔️ ' + levels[(G.level - 1) % levels.length] + ' ' + G.level;
+            document.getElementById('difficultyText').textContent = d.n;
+            document.getElementById('clicksRemaining').textContent = Math.max(0, G.clicksNeeded - G.clicksDone);
+            document.getElementById('levelTarget').textContent = G.clicksNeeded;
+            document.getElementById('progressBarFill').style.width = Math.min(100, (G.clicksDone / G.clicksNeeded) * 100) + '%';
+            document.getElementById('speedDisplay').textContent = sp.toFixed(1) + 'x';
+            document.getElementById('bombsHit').textContent = G.bombsHit;
+            document.getElementById('candiesMissed').textContent = G.candiesMissed;
+            document.getElementById('heartsDisplay').textContent = G.hearts;
+            document.getElementById('menuHearts').textContent = G.hearts;
+            document.getElementById('menuGems').textContent = G.gems;
+            document.getElementById('upgradeClickCost').textContent = fmt(upClickCost);
+            document.getElementById('upgradeGoldCost').textContent = fmt(upGoldCost);
+            document.getElementById('heroCost').textContent = fmt(heroCost);
+            document.getElementById('upgradeHeroCost').textContent = fmt(upHeroCost);
+            document.getElementById('btnUpgradeClick').disabled = G.gold < upClickCost;
+            document.getElementById('btnUpgradeGold').disabled = G.gold < upGoldCost;
+            document.getElementById('btnHireHero').disabled = G.hasHero || G.gold < heroCost;
+            document.getElementById('btnUpgradeHero').disabled = !G.hasHero || G.gold < upHeroCost;
+            document.getElementById('btnPrestige').disabled = G.level < 50;
+            document.getElementById('prestigeGems').textContent = Math.floor(20 + G.level * 0.8 + G.prestige * 5);
+            document.getElementById('character').textContent = G.charData[G.char].e;
+            document.getElementById('menuHero').textContent = G.charData[G.char].e;
+            checkAchievements();
+        }
+
+        // ============================================================
+        // 10. دوال اللعب (السقوط، النقر، المستويات)
+        // ============================================================
+        function startSpawning() {
+            if (spawnInt) { clearInterval(spawnInt);
+                spawnInt = null; }
+            if (G.level < 100 && G.hearts > 0 && !G.levelFailed && G.gameStarted && !gamePaused) {
+                spawnInt = setInterval(spawn, spawnT());
+            }
+        }
+
+        function spawn() {
+            if (gamePaused || !G.gameStarted || G.hearts <= 0 || G.levelFailed) return;
+            var mx = G.level <= 3 ? 3 : G.level <= 10 ? 5 : G.level <= 25 ? 7 : G.level <= 50 ? 8 : 10;
+            if (document.querySelectorAll('.falling-item').length > mx) return;
+            var item = document.createElement('div');
+            item.className = 'falling-item';
+            var d = diff(),
+                isB = Math.random() < d.b;
+            if (isB) {
+                var b = bombs[Math.floor(Math.random() * bombs.length)];
+                item.textContent = b.e;
+                item.dataset.t = 'bomb';
+                item.dataset.v = b.d + Math.floor(G.level / 5);
+            } else {
+                var c = candies[Math.floor(Math.random() * candies.length)];
+                item.textContent = c.e;
+                item.dataset.t = 'candy';
+                item.dataset.v = c.v;
+            }
+            item.dataset.clicked = 'false';
+            item.dataset.checked = 'false';
+            item.style.left = (Math.random() * 80 + 5) + '%';
+            item.style.top = '-45px';
+            var ft = fallT();
+            item.style.animation = 'fall ' + ft + 's linear';
+            item.addEventListener('click', function(e) { e.stopPropagation();
+                e.preventDefault();
+                clickItem(item, e); });
+            item.addEventListener('touchstart', function(e) { e.preventDefault();
+                e.stopPropagation();
+                clickItem(item, e); }, { passive: false });
+            document.getElementById('gameArea').appendChild(item);
+            setTimeout(function(el) { return function() { if (el.parentNode) el.parentNode.removeChild(el); }; }(item), (ft + 0.8) * 1000);
+        }
+
+        function clickItem(item, e) {
+            if (!G.gameStarted || G.hearts <= 0 || G.levelFailed || gamePaused) return;
+            if (item.dataset.clicked === 'true') return;
+            var now = Date.now();
+            if (now - lastClick < 55) return;
+            lastClick = now;
+            item.dataset.clicked = 'true';
+            item.dataset.checked = 'true';
+            var t = item.dataset.t,
+                v = parseInt(item.dataset.v);
+            var r = item.getBoundingClientRect(),
+                x = r.left + r.width / 2,
+                y = r.top + r.height / 2;
+            if (t === 'bomb') {
+                if (G.shieldActive) {
+                    showFloat('🛡️', x, y, '#00cec9');
+                } else {
+                    G.bombsHit++;
+                    G.totalBombs++;
+                    G.clicksDone = Math.max(0, G.clicksDone - v);
+                    showFloat('💥 -' + v, x, y, '#ff4444');
+                    sfx('bomb');
+                    if (G.bombsHit >= G.maxBombs) { lose('bombs'); return; }
+                }
+            } else {
+                G.totalCandies++;
+                G.clicksDone += v * dmg();
+                G.totalClicks++;
+                showFloat('+' + v * dmg(), x, y, '#ff69b4');
+                sfx('candy');
+                if (G.clicksDone >= G.clicksNeeded) levelUp();
+            }
+            G.quests.bomb10 = Math.min(10, G.quests.bomb10 + (t === 'bomb' ? 1 : 0));
+            G.quests.click50 = Math.min(50, G.quests.click50 + 1);
+            item.style.transform = 'scale(0)';
+            item.style.opacity = '0';
+            setTimeout(function(el) { return function() { if (el.parentNode) el.parentNode.removeChild(el); }; }(item), 150);
+            updateUI();
+            save();
+        }
+
+        function showFloat(t, x, y, c) {
+            var el = document.createElement('div');
+            el.style.cssText = 'position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:burst 1s ease-out forwards;';
+            el.textContent = t;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = c || '#FFD700';
+            document.body.appendChild(el);
+            setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 1000);
+        }
+
+        var cheers = ['🌟 رائع!', '💪 قوة!', '🔥 استمر!', '⚡ مذهل!'];
+
+        function levelUp() {
+            G.level++;
+            G.totalLevels++;
+            G.clicksDone = 0;
+            G.clicksNeeded = need();
+            G.gold += goldR();
+            G.bombsHit = 0;
+            G.candiesMissed = 0;
+            clearItems();
+            sfx('levelup');
+            showToast(cheers[Math.floor(Math.random() * cheers.length)]);
+            if (G.level >= 100) { G.gameStarted = false;
+                showToast('🏆 مبروك!'); } else { showLevelUp(); }
+            G.quests.level5 = Math.min(5, G.quests.level5 + 1);
+            updateUI();
+            save();
+        }
+
+        function clearItems() {
+            var items = document.querySelectorAll('.falling-item');
+            for (var i = 0; i < items.length; i++) { if (items[i].parentNode) items[i].parentNode.removeChild(items[i]); }
+        }
+
+        function showLevelUp() {
+            if (spawnInt) { clearInterval(spawnInt);
+                spawnInt = null; }
+            G.gameStarted = false;
+            document.getElementById('nextLevelName').textContent = levels[(G.level - 1) % levels.length] + ' ' + G.level;
+            document.getElementById('transitionReward').textContent = goldR();
+            openModal('levelTransition');
+        }
+
+        function continueLevel() { closeModal('levelTransition');
+            beginPlay(); }
+
+        // ============================================================
+        // 11. فحص العناصر الفائتة والخسارة
+        // ============================================================
+        function checkMissed() {
+            if (gamePaused || !G.gameStarted || G.hearts <= 0 || G.levelFailed) return;
+            var ga = document.getElementById('gameArea');
+            if (!ga) return;
+            var gr = ga.getBoundingClientRect(),
+                gy = gr.height - 60;
+            var items = document.querySelectorAll('.falling-item');
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                if (item.dataset.checked === 'true') continue;
+                var ir = item.getBoundingClientRect();
+                var itemBottom = ir.bottom - gr.top;
+                if (itemBottom >= gy) {
+                    item.dataset.checked = 'true';
+                    if (item.dataset.t === 'candy') {
                         G.candiesMissed++;
-                        var p=penalty();
-                        G.clicksDone=Math.max(0,G.clicksDone-p);
-                        showMissedText(ir.left+ir.width/2,ir.top,'🍬 فائتة! ('+G.candiesMissed+'/'+G.maxMissed+')','#ffaa00');
-                        if(G.candiesMissed>=G.maxMissed){
-                            lose('candies');
-                            return;
-                        }
-                    } else if(item.dataset.t==='bomb'){
-                        showMissedText(ir.left+ir.width/2,ir.top,'💣 نجوت!','#4ecca3');
+                        var p = penalty();
+                        G.clicksDone = Math.max(0, G.clicksDone - p);
+                        showMissedText(ir.left + ir.width / 2, ir.top, '🍬 فائتة! (' + G.candiesMissed + '/' + G.maxMissed + ')', '#ffaa00');
+                        if (G.candiesMissed >= G.maxMissed) { lose('candies'); return; }
+                    } else if (item.dataset.t === 'bomb') {
+                        showMissedText(ir.left + ir.width / 2, ir.top, '💣 نجوت!', '#4ecca3');
                     }
-                    item.style.opacity='0';
-                    item.style.transition='opacity 0.3s';
-                    setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),300);
-                    updateUI();save();
+                    item.style.opacity = '0';
+                    item.style.transition = 'opacity 0.3s';
+                    setTimeout(function(el) { return function() { if (el.parentNode) el.parentNode.removeChild(el); }; }(item), 300);
+                    updateUI();
+                    save();
                 }
             }
         }
 
-        function showMissedText(x,y,text,color){
-            var el=document.createElement('div');
-            el.style.cssText='position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:missedFloat 1.5s ease-out forwards;';
-            el.textContent=text;el.style.left=x+'px';el.style.top=y+'px';el.style.color=color;
+        function showMissedText(x, y, text, color) {
+            var el = document.createElement('div');
+            el.style.cssText = 'position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:missedFloat 1.5s ease-out forwards;';
+            el.textContent = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
             document.body.appendChild(el);
-            setTimeout(function(){if(el.parentNode) el.parentNode.removeChild(el);},1500);
+            setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 1500);
         }
 
-        function lose(reason){if(G.levelFailed) return;G.levelFailed=true;G.gameStarted=false;gamePaused=false;if(spawnInt){clearInterval(spawnInt);spawnInt=null;}clearItems();G.hearts--;sfx('lose');updateUI();save();document.getElementById('loseReason').textContent=reason==='bombs'?'💣 5 قنابل!':'🍬 5 حلوى فائتة!';if(G.hearts<=0){openModal('noHeartsModal');G.waiting=true;G.waitEnd=Date.now()+10*1800*1000;if(waitInt) clearInterval(waitInt);waitInt=setInterval(updateWait,1000);}else{openModal('loseModal');}}
-        function retryLevel(){closeModal('loseModal');if(G.hearts<=0) return;beginPlay();}
-        function retryWithAd(){closeModal('loseModal');if(G.hearts<=0) return;G.clicksDone=Math.floor(G.clicksNeeded*0.3);beginPlay();showToast('📺 +30%');}
-        function giveUpLevel(){closeModal('loseModal');goToMenu();}
-        function updateWait(){var r=Math.max(0,G.waitEnd-Date.now()),ts=Math.floor(r/1000);var h=Math.floor(ts/3600),m=Math.floor((ts%3600)/60),s=ts%60;document.getElementById('waitTimer').textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;var sh=G.maxHearts-Math.ceil(r/(1800*1000));if(sh>G.hearts&&sh<=G.maxHearts){G.hearts=sh;updateUI();if(G.hearts>0&&G.waiting){G.waiting=false;closeModal('noHeartsModal');showToast('❤️ '+G.hearts+' قلوب!');}}if(r<=0){G.hearts=G.maxHearts;G.waiting=false;updateUI();closeModal('noHeartsModal');if(waitInt) clearInterval(waitInt);showToast('❤️ مكتملة!');}save();}
+        function lose(reason) {
+            if (G.levelFailed) return;
+            G.levelFailed = true;
+            G.gameStarted = false;
+            gamePaused = false;
+            if (spawnInt) { clearInterval(spawnInt);
+                spawnInt = null; }
+            clearItems();
+            G.hearts--;
+            sfx('lose');
+            updateUI();
+            save();
+            document.getElementById('loseReason').textContent = reason === 'bombs' ? '💣 5 قنابل!' : '🍬 5 حلوى فائتة!';
+            if (G.hearts <= 0) {
+                openModal('noHeartsModal');
+                G.waiting = true;
+                G.waitEnd = Date.now() + 10 * 1800 * 1000;
+                if (waitInt) clearInterval(waitInt);
+                waitInt = setInterval(updateWait, 1000);
+            } else { openModal('loseModal'); }
+        }
 
-        function upgradeClick(){if(G.gold>=upClickCost){G.gold-=upClickCost;G.clickDmg+=2;upClickCost=Math.floor(upClickCost*1.6);updateUI();save();}}
-        function upgradeGold(){if(G.gold>=upGoldCost){G.gold-=upGoldCost;G.goldMult+=10;upGoldCost=Math.floor(upGoldCost*1.8);updateUI();save();}}
-        function hireHero(){if(!G.hasHero&&G.gold>=heroCost){G.gold-=heroCost;G.hasHero=true;G.idleDmg=1;G.heroLv=1;updateUI();save();}}
-        function upgradeHero(){if(G.hasHero&&G.gold>=upHeroCost){G.gold-=upHeroCost;G.idleDmg+=2;G.heroLv++;upHeroCost=Math.floor(upHeroCost*1.9);updateUI();save();}}
-        function buyChar(id,cost){if(G.gems>=cost&&G.chars.indexOf(id)===-1){G.gems-=cost;G.chars.push(id);G.char=id;updateUI();save();showToast('✨ تم!');}else if(G.chars.indexOf(id)!==-1){G.char=id;updateUI();save();showToast('✨ مجهز!');}}
-        function doPrestige(){if(G.level<50) return;var g=Math.floor(20+G.level*0.8+G.prestige*5);G.gems+=g;G.prestige++;G.gold=0;G.level=1;G.clicksNeeded=need();G.clicksDone=0;G.clickDmg=1;G.idleDmg=0;G.hasHero=false;G.hearts=G.maxHearts;upClickCost=10;upGoldCost=80;heroCost=150;upHeroCost=300;clearItems();G.levelFailed=false;updateUI();save();showToast('🌟 +'+g+'💎');beginPlay();}
+        function retryLevel() { closeModal('loseModal'); if (G.hearts <= 0) return;
+            beginPlay(); }
 
-        setInterval(function(){checkVIPExpire();if(G.powerActive){G.powerTimer--;if(G.powerTimer<=0) G.powerActive=false;}if(G.hasHero&&G.level<100&&G.hearts>0&&!G.levelFailed&&G.gameStarted&&!gamePaused){G.clicksDone+=G.idleDmg;if(G.clicksDone>=G.clicksNeeded) levelUp();updateUI();save();}},1000);
+        function retryWithAd() { closeModal('loseModal'); if (G.hearts <= 0) return;
+            G.clicksDone = Math.floor(G.clicksNeeded * 0.3);
+            beginPlay();
+            showToast('📺 +30%'); }
 
-        function toggleMusic(){musicOn=!musicOn;var t=document.getElementById('toggleMusic');if(t) t.classList.toggle('active',musicOn);}
-        function toggleSFX(){sfxOn=!sfxOn;var t=document.getElementById('toggleSFX');if(t) t.classList.toggle('active',sfxOn);}
+        function giveUpLevel() { closeModal('loseModal');
+            goToMenu(); }
 
-        load();updateUI();
+        function updateWait() {
+            var r = Math.max(0, G.waitEnd - Date.now()),
+                ts = Math.floor(r / 1000);
+            var h = Math.floor(ts / 3600),
+                m = Math.floor((ts % 3600) / 60),
+                s = ts % 60;
+            document.getElementById('waitTimer').textContent = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+            var sh = G.maxHearts - Math.ceil(r / (1800 * 1000));
+            if (sh > G.hearts && sh <= G.maxHearts) {
+                G.hearts = sh;
+                updateUI();
+                if (G.hearts > 0 && G.waiting) { G.waiting = false;
+                    closeModal('noHeartsModal');
+                    showToast('❤️ ' + G.hearts + ' قلوب!'); }
+            }
+            if (r <= 0) {
+                G.hearts = G.maxHearts;
+                G.waiting = false;
+                updateUI();
+                closeModal('noHeartsModal');
+                if (waitInt) clearInterval(waitInt);
+                showToast('❤️ مكتملة!');
+            }
+            save();
+        }
+
+        // ============================================================
+        // 12. دوال الترقيات والأبطال والدورة
+        // ============================================================
+        function upgradeClick() {
+            if (G.gold >= upClickCost) {
+                G.gold -= upClickCost;
+                G.clickDmg += 2;
+                upClickCost = Math.floor(upClickCost * 1.6);
+                updateUI();
+                save();
+            }
+        }
+
+        function upgradeGold() {
+            if (G.gold >= upGoldCost) {
+                G.gold -= upGoldCost;
+                G.goldMult += 10;
+                upGoldCost = Math.floor(upGoldCost * 1.8);
+                updateUI();
+                save();
+            }
+        }
+
+        function hireHero() {
+            if (!G.hasHero && G.gold >= heroCost) {
+                G.gold -= heroCost;
+                G.hasHero = true;
+                G.idleDmg = 1;
+                G.heroLv = 1;
+                updateUI();
+                save();
+            }
+        }
+
+        function upgradeHero() {
+            if (G.hasHero && G.gold >= upHeroCost) {
+                G.gold -= upHeroCost;
+                G.idleDmg += 2;
+                G.heroLv++;
+                upHeroCost = Math.floor(upHeroCost * 1.9);
+                updateUI();
+                save();
+            }
+        }
+
+        function buyChar(id, cost) {
+            if (G.gems >= cost && G.chars.indexOf(id) === -1) {
+                G.gems -= cost;
+                G.chars.push(id);
+                G.char = id;
+                updateUI();
+                save();
+                showToast('✨ تم!');
+            } else if (G.chars.indexOf(id) !== -1) {
+                G.char = id;
+                updateUI();
+                save();
+                showToast('✨ مجهز!');
+            }
+        }
+
+        function doPrestige() {
+            if (G.level < 50) return;
+            var g = Math.floor(20 + G.level * 0.8 + G.prestige * 5);
+            G.gems += g;
+            G.prestige++;
+            G.gold = 0;
+            G.level = 1;
+            G.clicksNeeded = need();
+            G.clicksDone = 0;
+            G.clickDmg = 1;
+            G.idleDmg = 0;
+            G.hasHero = false;
+            G.hearts = G.maxHearts;
+            upClickCost = 10;
+            upGoldCost = 80;
+            heroCost = 150;
+            upHeroCost = 300;
+            clearItems();
+            G.levelFailed = false;
+            updateUI();
+            save();
+            showToast('🌟 +' + g + '💎');
+            beginPlay();
+        }
+
+        // ============================================================
+        // 13. الحلقات الزمنية (المؤقتات)
+        // ============================================================
+        setInterval(function() {
+            checkVIPExpire();
+            if (G.powerActive) { G.powerTimer--; if (G.powerTimer <= 0) G.powerActive = false; }
+            if (G.hasHero && G.level < 100 && G.hearts > 0 && !G.levelFailed && G.gameStarted && !gamePaused) {
+                G.clicksDone += G.idleDmg;
+                if (G.clicksDone >= G.clicksNeeded) levelUp();
+                updateUI();
+                save();
+            }
+        }, 1000);
+
+        // ============================================================
+        // 14. دوال الإعدادات (الموسيقى والمؤثرات)
+        // ============================================================
+        function toggleMusic() {
+            musicOn = !musicOn;
+            var t = document.getElementById('toggleMusic');
+            if (t) t.classList.toggle('active', musicOn);
+        }
+
+        function toggleSFX() {
+            sfxOn = !sfxOn;
+            var t = document.getElementById('toggleSFX');
+            if (t) t.classList.toggle('active', sfxOn);
+        }
+
+        // ============================================================
+        // 15. تحميل البيانات عند بدء التشغيل
+        // ============================================================
+        load();
+        updateUI();
     </script>
 </body>
 </html>
