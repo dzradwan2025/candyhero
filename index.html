@@ -32,12 +32,12 @@
 
         #gameScreen{display:none;width:100%;height:100%;flex-direction:column;position:fixed;top:0;left:0;}
         #gameScreen.active{display:flex;}
-        .stats-bar{width:100%;padding:3px 8px;display:flex;justify-content:space-around;align-items:center;background:rgba(22,33,62,0.95);z-index:11;border-bottom:1px solid #333;flex-shrink:0;font-size:0.7rem;color:#fff;min-height:28px;}
-        .top-bar{width:100%;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;background:rgba(22,33,62,0.95);z-index:10;box-shadow:0 2px 12px rgba(0,0,0,0.5);flex-shrink:0;gap:3px;min-height:40px;}
-        .currency{display:flex;align-items:center;gap:2px;font-size:0.78rem;font-weight:bold;}
+        .stats-bar{width:100%;padding:6px 10px;display:flex;justify-content:space-around;align-items:center;background:rgba(22,33,62,0.95);z-index:11;border-bottom:1px solid #333;flex-shrink:0;font-size:0.85rem;color:#fff;min-height:32px;}
+        .top-bar{width:100%;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;background:rgba(22,33,62,0.95);z-index:10;box-shadow:0 2px 12px rgba(0,0,0,0.5);flex-shrink:0;gap:3px;min-height:48px;}
+        .currency{display:flex;align-items:center;gap:2px;font-size:0.9rem;font-weight:bold;}
         .currency.gold{color:var(--gold);}.currency.gems{color:var(--gem);}
-        .level-badge{background:linear-gradient(135deg,#e94560,#ff6b6b);color:#fff;padding:3px 7px;border-radius:8px;font-size:0.65rem;font-weight:bold;}
-        .back-btn,.pause-btn,.settings-btn{background:rgba(255,255,255,0.1);color:#fff;border:none;font-size:0.95rem;cursor:pointer;padding:5px 8px;border-radius:6px;min-height:32px;min-width:32px;}
+        .level-badge{background:linear-gradient(135deg,#e94560,#ff6b6b);color:#fff;padding:4px 10px;border-radius:8px;font-size:0.8rem;font-weight:bold;}
+        .back-btn,.pause-btn,.settings-btn{background:rgba(255,255,255,0.1);color:#fff;border:none;font-size:1.1rem;cursor:pointer;padding:5px 8px;border-radius:6px;min-height:36px;min-width:36px;}
         .game-area{flex:1;width:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#87CEEB,#B0E0E6,#E0F7FA,#c8e6c9);}
         .cloud{position:absolute;font-size:2rem;opacity:0.55;animation:cloudMove linear infinite;}
         .cloud:nth-child(1){top:5%;animation-duration:22s;}.cloud:nth-child(2){top:15%;animation-duration:28s;animation-delay:-8s;font-size:1.6rem;}.cloud:nth-child(3){top:25%;animation-duration:20s;animation-delay:-4s;font-size:1.4rem;}
@@ -51,23 +51,23 @@
         .start-overlay .tap-text{font-size:1.5rem;font-weight:bold;color:#FFD700;animation:pulse 1s infinite;}
         .start-overlay .tap-sub{color:#fff;font-size:0.8rem;}
         .progress-container{width:90%;text-align:center;z-index:30;margin-top:5px;background:rgba(255,255,255,0.7);padding:6px;border-radius:8px;}
-        .level-label{font-size:0.85rem;font-weight:bold;color:#333;}
+        .level-label{font-size:1rem;font-weight:bold;color:#333;}
         .progress-bar-bg{width:100%;height:10px;background:#ddd;border-radius:5px;overflow:hidden;margin:3px 0;}
         .progress-bar-fill{height:100%;background:linear-gradient(90deg,#4ecca3,#44dd88);border-radius:5px;transition:width 0.3s;}
         .difficulty{font-size:0.6rem;color:#666;}
-        .speed-indicator{position:absolute;top:5px;right:5px;z-index:30;background:rgba(0,0,0,0.5);color:#fff;padding:2px 6px;border-radius:5px;font-size:0.55rem;}
-        .falling-item{position:absolute;font-size:1.8rem;cursor:pointer;animation:fall linear;pointer-events:auto;z-index:15;filter:drop-shadow(0 0 4px rgba(255,255,255,0.4));}
+        .speed-indicator{position:absolute;top:5px;right:5px;z-index:30;background:rgba(0,0,0,0.5);color:#fff;padding:3px 8px;border-radius:5px;font-size:0.7rem;}
+        .falling-item{position:absolute;font-size:2.2rem;cursor:pointer;animation:fall linear;pointer-events:auto;z-index:15;filter:drop-shadow(0 0 4px rgba(255,255,255,0.4));max-height:60px;overflow:hidden;}
         .falling-item:active{transform:scale(1.35);}
         @keyframes fall{0%{top:-40px;opacity:1;}100%{top:110%;opacity:1;}}
         @keyframes missedFloat{0%{opacity:1;transform:translateY(0) scale(0.7);}30%{opacity:1;transform:translateY(-35px) scale(1.2);}100%{opacity:0;transform:translateY(-100px) scale(0.5);}}
 
-        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);z-index:600;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px;text-align:center;padding:12px;}
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);z-index:600;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px;text-align:center;padding:12px;overscroll-behavior:contain;}
         .modal.show{display:flex;}
         .modal-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;}
-        .modal-box{position:relative;z-index:1;width:92%;max-width:340px;max-height:72vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;align-items:center;padding:12px;background:rgba(30,30,50,0.96);border-radius:12px;border:2px solid #555;}
+        .modal-box{position:relative;z-index:1;width:92%;max-width:380px;max-height:72vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;align-items:center;padding:16px;background:rgba(30,30,50,0.96);border-radius:12px;border:2px solid #555;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
         .modal-close{position:absolute;top:6px;right:6px;z-index:2;background:var(--accent);color:#fff;border:none;width:28px;height:28px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:28px;min-width:28px;font-weight:bold;}
-        .modal h2{color:#fff;font-size:1rem;margin-top:3px;}
-        .modal button{padding:9px 20px;border-radius:14px;font-size:0.8rem;font-weight:bold;cursor:pointer;font-family:inherit;border:none;width:88%;min-height:36px;margin:2px 0;}
+        .modal h2{color:#fff;font-size:1.2rem;margin-top:3px;}
+        .modal button{padding:10px 22px;border-radius:14px;font-size:0.9rem;font-weight:bold;cursor:pointer;font-family:inherit;border:none;width:88%;min-height:40px;margin:2px 0;}
         .close-btn{background:var(--accent);color:#fff;}
         .wait-btn{background:#555;color:#ccc;}
         .watch-ad-btn{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;animation:glowMoney 1.5s infinite;}
@@ -83,34 +83,37 @@
 
         .bottom-panel{width:100%;background:rgba(22,33,62,0.95);padding:5px 7px;display:flex;flex-direction:column;gap:2px;flex-shrink:0;max-height:34vh;overflow-y:auto;}
         .btn-row{display:flex;gap:3px;flex-wrap:wrap;}
-        .bottom-panel button{background:linear-gradient(135deg,#2a2a4a,#3a3a5a);color:#fff;border:2px solid #4a4a6a;padding:7px 9px;border-radius:7px;font-size:0.68rem;cursor:pointer;font-weight:bold;flex:1;min-width:52px;font-family:inherit;min-height:36px;}
+        .bottom-panel button{background:linear-gradient(135deg,#2a2a4a,#3a3a5a);color:#fff;border:2px solid #4a4a6a;padding:8px 10px;border-radius:7px;font-size:0.75rem;cursor:pointer;font-weight:bold;flex:1;min-width:52px;font-family:inherit;min-height:40px;}
         .bottom-panel button:active{transform:scale(0.94);}
         .bottom-panel button.primary{background:linear-gradient(135deg,#e94560,#ff6b6b);border-color:#ff6b6b;}
         .bottom-panel button:disabled{opacity:0.35;}
 
         .tabs{display:flex;gap:2px;margin-bottom:2px;}
-        .tab{padding:7px 12px;background:#1a1a3a;border-radius:7px 7px 0 0;cursor:pointer;font-size:1rem;font-weight:bold;border:1px solid #333;border-bottom:none;}
+        .tab{padding:8px 14px;background:#1a1a3a;border-radius:7px 7px 0 0;cursor:pointer;font-size:1.1rem;font-weight:bold;border:1px solid #333;border-bottom:none;}
         .tab.active{background:#e94560;border-color:#e94560;}
 
         .tab-content{display:none;}.tab-content.active{display:block;}
-        .shop-item{display:flex;justify-content:space-between;align-items:center;padding:7px;background:linear-gradient(135deg,#1a1a3a,#222244);border-radius:7px;margin:2px 0;border:1px solid #333;font-size:0.7rem;}
+        .shop-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:linear-gradient(135deg,#1a1a3a,#222244);border-radius:7px;margin:2px 0;border:1px solid #333;font-size:0.8rem;}
         .shop-item.ad-item{border:2px solid #00cec9;animation:glowMoney 2s infinite;}
         .shop-item.special{border:2px solid #FFD700;}
         .shop-item.vip-item{border:2px solid #e94560;animation:glowMoney 1.5s infinite;}
-        .shop-item-info{flex:1;}
+        .shop-item-info{flex:1;font-size:0.85rem;}
         .shop-item-desc{font-size:0.6rem;color:#aaa;}
         .vip-badge{background:#e94560;color:#fff;padding:2px 4px;border-radius:4px;font-size:0.5rem;}
-        .ach-item{display:flex;align-items:center;gap:5px;padding:5px;background:rgba(255,255,255,0.04);border-radius:5px;margin:2px 0;font-size:0.68rem;color:#fff;}
+        .ach-item{display:flex;align-items:center;gap:5px;padding:6px 8px;background:rgba(255,255,255,0.04);border-radius:5px;margin:2px 0;font-size:0.75rem;color:#fff;}
         .ach-icon{font-size:1.2rem;}
         .ach-locked{opacity:0.3;}
         .daily-item{display:flex;justify-content:space-between;align-items:center;padding:7px;background:rgba(255,215,0,0.07);border-radius:7px;margin:2px 0;border:1px solid #FFD700;color:#fff;font-size:0.7rem;}
-        .quest-item{display:flex;justify-content:space-between;align-items:center;padding:5px;background:rgba(0,206,201,0.07);border-radius:5px;margin:2px 0;border:1px solid #00cec9;color:#fff;font-size:0.65rem;}
+        .quest-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(0,206,201,0.07);border-radius:5px;margin:2px 0;border:1px solid #00cec9;color:#fff;font-size:0.75rem;}
         .toast{position:fixed;bottom:40%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#fff;padding:8px 16px;border-radius:14px;z-index:700;font-weight:bold;font-size:0.78rem;opacity:0;transition:opacity 0.3s;pointer-events:none;}
         .toast.show{opacity:1;}
 
-        /* زر تحديث APK */
-        .apk-update-btn{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;padding:8px 16px;border-radius:10px;font-size:0.8rem;font-weight:bold;cursor:pointer;margin:5px 0;width:88%;}
+        .apk-update-btn{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:0.9rem;font-weight:bold;cursor:pointer;margin:5px 0;width:88%;}
         .apk-update-btn:active{transform:scale(0.95);}
+        
+        /* زر الإعلان للترقيات */
+        .ad-boost-btn{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;border:none;padding:5px 10px;border-radius:7px;font-size:0.6rem;cursor:pointer;animation:glowMoney 1.5s infinite;}
+        .ad-boost-btn:active{transform:scale(0.95);}
     </style>
 </head>
 <body>
@@ -141,8 +144,24 @@
         </div>
         <div class="bottom-panel">
             <div class="tabs"><div class="tab active" onclick="switchTab('upgrades')">⚡ ترقيات</div><div class="tab" onclick="switchTab('heroes')">🦸 أبطال</div><div class="tab" onclick="switchTab('shop')">🛒 متجر</div><div class="tab" onclick="switchTab('ads')">📺 مكافآت</div><div class="tab" onclick="switchTab('prestige')">🌟 دورة</div></div>
-            <div class="tab-content active" id="tab-upgrades"><div class="btn-row"><button onclick="upgradeClick()" id="btnUpgradeClick">⚡ نقر 🪙<span id="upgradeClickCost">10</span></button><button onclick="upgradeGold()" id="btnUpgradeGold">💰 ذهب 🪙<span id="upgradeGoldCost">80</span></button></div></div>
-            <div class="tab-content" id="tab-heroes"><button onclick="hireHero()" id="btnHireHero" class="primary">🤖 بطل 🪙<span id="heroCost">150</span></button><button onclick="upgradeHero()" id="btnUpgradeHero" disabled>💪 ترقية 🪙<span id="upgradeHeroCost">300</span></button></div>
+            <div class="tab-content active" id="tab-upgrades">
+                <div class="btn-row">
+                    <button onclick="upgradeClick()" id="btnUpgradeClick" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;">⚡ نقر 💎<span id="upgradeClickCost">15</span></button>
+                    <button onclick="upgradeGold()" id="btnUpgradeGold" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;">💰 ذهب 💎<span id="upgradeGoldCost">160</span></button>
+                </div>
+                <div style="display:flex;gap:3px;margin-top:3px;">
+                    <button class="ad-boost-btn" onclick="watchAdForUpgrade('click')" style="flex:1;">📺 نقر مجاني</button>
+                    <button class="ad-boost-btn" onclick="watchAdForUpgrade('gold')" style="flex:1;">📺 ذهب مجاني</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-heroes">
+                <button onclick="hireHero()" id="btnHireHero" class="primary" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;">🤖 بطل 💎<span id="heroCost">120</span></button>
+                <button onclick="upgradeHero()" id="btnUpgradeHero" disabled style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;">💪 ترقية 💎<span id="upgradeHeroCost">270</span></button>
+                <div style="display:flex;gap:3px;margin-top:3px;">
+                    <button class="ad-boost-btn" onclick="watchAdForUpgrade('hero')" style="flex:1;">📺 بطل مجاني</button>
+                    <button class="ad-boost-btn" onclick="watchAdForUpgrade('heroUpgrade')" style="flex:1;">📺 ترقية مجانية</button>
+                </div>
+            </div>
             <div class="tab-content" id="tab-shop"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar('superhero',500)">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar('candyking',2500)">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney('gems_500')" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_month')" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_forever')" style="width:auto;padding:5px 8px;">💳</button></div></div>
             <div class="tab-content" id="tab-ads"><div class="shop-item ad-item"><div class="shop-item-info">💎 50 جوهرة</div><button class="watch-ad-btn" onclick="watchAdReward('gems')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">🪙 5000 ذهب</div><button class="watch-ad-btn" onclick="watchAdReward('gold')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">❤️ +3 قلوب</div><button class="watch-ad-btn" onclick="watchAdReward('hearts')" style="width:auto;padding:5px 8px;">📺</button></div></div>
             <div class="tab-content" id="tab-prestige"><button onclick="doPrestige()" id="btnPrestige" class="primary" disabled>🌟 إعادة الدورة (50+) 💎<span id="prestigeGems">20</span></button></div>
@@ -212,12 +231,27 @@
             }
         }
 
+        // منع السحب للتحديث (Pull-to-Refresh) على النوافذ المنبثقة
+        document.addEventListener('touchmove', function(e) {
+            var target = e.target;
+            if (target.closest('.modal') || target.closest('.modal-box') || target.closest('.bottom-panel')) {
+                var container = target.closest('.modal-box, .bottom-panel, .modal');
+                if (container) {
+                    var scrollable = container;
+                    if (scrollable.scrollHeight > scrollable.clientHeight) {
+                        return;
+                    }
+                }
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         // ============================================================
         // 2. المتغيرات العامة
         // ============================================================
         var G = {
             gold: 0,
-            gems: 0,
+            gems: 20,
             level: 1,
             clicksNeeded: 30,
             clicksDone: 0,
@@ -263,10 +297,10 @@
             saveCode: ''
         };
 
-        var upClickCost = 10,
-            upGoldCost = 80,
-            heroCost = 150,
-            upHeroCost = 300;
+        var upClickCost = 15,
+            upGoldCost = 160,
+            heroCost = 120,
+            upHeroCost = 270;
         var spawnInt = null,
             waitInt = null,
             checkInt = null,
@@ -316,12 +350,10 @@
                     if (code.length > 2000) {
                         if (confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')) {
                             save();
-                            // تحديث في الخلفية دون إعادة تحميل الصفحة
                             var newScript = document.createElement('script');
                             newScript.textContent = code;
                             document.body.appendChild(newScript);
                             showToast('✅ تم التحديث بنجاح!');
-                            // تحديث الواجهة بعد التحديث
                             setTimeout(function() {
                                 if (typeof updateUI === 'function') updateUI();
                                 if (typeof load === 'function') load();
@@ -374,10 +406,10 @@
             if (s) {
                 var d = JSON.parse(s);
                 G = d.G || G;
-                upClickCost = d.ucc || 10;
-                upGoldCost = d.ugc || 80;
-                heroCost = d.hc || 150;
-                upHeroCost = d.uhc || 300;
+                upClickCost = d.ucc || 15;
+                upGoldCost = d.ugc || 160;
+                heroCost = d.hc || 120;
+                upHeroCost = d.uhc || 270;
                 adCount = d.adc || 0;
                 adDate = d.add || '';
                 if (!G.chars) G.chars = ['superhero'];
@@ -422,10 +454,12 @@
         }
 
         function fallT() {
-            if (G.level <= 3) return 5;
-            if (G.level <= 10) return Math.max(2.5, 5 - (G.level * 0.25));
-            if (G.level <= 30) return Math.max(1.2, 3 - (G.level * 0.08));
-            return Math.max(0.6, 1.5 - (G.level * 0.02));
+            var ft = 5;
+            if (G.level <= 3) ft = 5;
+            else if (G.level <= 10) ft = Math.max(2.5, 5 - (G.level * 0.25));
+            else if (G.level <= 30) ft = Math.max(1.2, 3 - (G.level * 0.08));
+            else ft = Math.max(0.8, 1.5 - (G.level * 0.02));
+            return Math.max(ft, 1 / 3.5);
         }
 
         function penalty() {
@@ -707,10 +741,10 @@
             if (cloud) {
                 var d = JSON.parse(cloud);
                 G = d.G || G;
-                upClickCost = d.ucc || 10;
-                upGoldCost = d.ugc || 80;
-                heroCost = d.hc || 150;
-                upHeroCost = d.uhc || 300;
+                upClickCost = d.ucc || 15;
+                upGoldCost = d.ugc || 160;
+                heroCost = d.hc || 120;
+                upHeroCost = d.uhc || 270;
                 G.saveCode = code;
                 save();
                 updateUI();
@@ -889,10 +923,10 @@
             document.getElementById('upgradeGoldCost').textContent = fmt(upGoldCost);
             document.getElementById('heroCost').textContent = fmt(heroCost);
             document.getElementById('upgradeHeroCost').textContent = fmt(upHeroCost);
-            document.getElementById('btnUpgradeClick').disabled = G.gold < upClickCost;
-            document.getElementById('btnUpgradeGold').disabled = G.gold < upGoldCost;
-            document.getElementById('btnHireHero').disabled = G.hasHero || G.gold < heroCost;
-            document.getElementById('btnUpgradeHero').disabled = !G.hasHero || G.gold < upHeroCost;
+            document.getElementById('btnUpgradeClick').disabled = G.gems < upClickCost;
+            document.getElementById('btnUpgradeGold').disabled = G.gems < upGoldCost;
+            document.getElementById('btnHireHero').disabled = G.hasHero || G.gems < heroCost;
+            document.getElementById('btnUpgradeHero').disabled = !G.hasHero || G.gems < upHeroCost;
             document.getElementById('btnPrestige').disabled = G.level < 50;
             document.getElementById('prestigeGems').textContent = Math.floor(20 + G.level * 0.8 + G.prestige * 5);
             document.getElementById('character').textContent = G.charData[G.char].e;
@@ -936,6 +970,8 @@
             item.style.top = '-45px';
             var ft = fallT();
             item.style.animation = 'fall ' + ft + 's linear';
+            item.style.maxHeight = '60px';
+            item.style.overflow = 'hidden';
             item.addEventListener('click', function(e) { e.stopPropagation();
                 e.preventDefault();
                 clickItem(item, e); });
@@ -1036,21 +1072,21 @@
             beginPlay(); }
 
         // ============================================================
-        // 11. فحص العناصر الفائتة والخسارة
+        // 11. فحص العناصر الفائتة والخسارة - مع منع تخطي الخط الأحمر
         // ============================================================
         function checkMissed() {
             if (gamePaused || !G.gameStarted || G.hearts <= 0 || G.levelFailed) return;
             var ga = document.getElementById('gameArea');
             if (!ga) return;
-            var gr = ga.getBoundingClientRect(),
-                gy = gr.height - 60;
+            var gr = ga.getBoundingClientRect();
+            var gy = gr.height - 60;
             var items = document.querySelectorAll('.falling-item');
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
                 if (item.dataset.checked === 'true') continue;
                 var ir = item.getBoundingClientRect();
                 var itemBottom = ir.bottom - gr.top;
-                if (itemBottom >= gy) {
+                if (itemBottom >= gy - 5) {
                     item.dataset.checked = 'true';
                     if (item.dataset.t === 'candy') {
                         G.candiesMissed++;
@@ -1141,47 +1177,95 @@
         }
 
         // ============================================================
-        // 12. دوال الترقيات والأبطال والدورة
+        // 12. دوال الترقيات والأبطال والدورة - بالجواهر + إعلانات
         // ============================================================
         function upgradeClick() {
-            if (G.gold >= upClickCost) {
-                G.gold -= upClickCost;
-                G.clickDmg += 2;
-                upClickCost = Math.floor(upClickCost * 1.6);
+            if (G.gems >= upClickCost) {
+                G.gems -= upClickCost;
+                G.clickDmg += 3;
+                upClickCost = Math.floor(upClickCost * 1.7);
                 updateUI();
                 save();
+                showToast('⚡ تمت الترقية!');
+            } else {
+                if (confirm('💎 لا يوجد جواهر كافية!\n📺 هل تريد مشاهدة إعلان للحصول على ترقية مجانية؟')) {
+                    watchAdForUpgrade('click');
+                }
             }
         }
 
         function upgradeGold() {
-            if (G.gold >= upGoldCost) {
-                G.gold -= upGoldCost;
-                G.goldMult += 10;
-                upGoldCost = Math.floor(upGoldCost * 1.8);
+            if (G.gems >= upGoldCost) {
+                G.gems -= upGoldCost;
+                G.goldMult += 15;
+                upGoldCost = Math.floor(upGoldCost * 2);
                 updateUI();
                 save();
+                showToast('💰 تمت الترقية!');
+            } else {
+                if (confirm('💎 لا يوجد جواهر كافية!\n📺 هل تريد مشاهدة إعلان للحصول على ترقية مجانية؟')) {
+                    watchAdForUpgrade('gold');
+                }
             }
         }
 
+        function watchAdForUpgrade(type) {
+            if (!navigator.onLine) {
+                showToast('⚠️ لا يوجد اتصال بالإنترنت!');
+                return;
+            }
+            showToast('📺 جارٍ تحميل الإعلان...');
+            setTimeout(function() {
+                if (type === 'click') {
+                    G.clickDmg += 2;
+                    showToast('✅ تمت الترقية مجاناً!');
+                } else if (type === 'gold') {
+                    G.goldMult += 10;
+                    showToast('✅ تمت الترقية مجاناً!');
+                } else if (type === 'hero') {
+                    G.hasHero = true;
+                    G.idleDmg = 1;
+                    G.heroLv = 1;
+                    showToast('🤖 تم توظيف البطل مجاناً!');
+                } else if (type === 'heroUpgrade') {
+                    G.idleDmg += 2;
+                    G.heroLv++;
+                    showToast('💪 تمت ترقية البطل مجاناً!');
+                }
+                updateUI();
+                save();
+            }, 1500);
+        }
+
         function hireHero() {
-            if (!G.hasHero && G.gold >= heroCost) {
-                G.gold -= heroCost;
+            if (!G.hasHero && G.gems >= heroCost) {
+                G.gems -= heroCost;
                 G.hasHero = true;
                 G.idleDmg = 1;
                 G.heroLv = 1;
                 updateUI();
                 save();
+                showToast('🤖 تم توظيف البطل!');
+            } else if (!G.hasHero) {
+                if (confirm('💎 لا يوجد جواهر كافية!\n📺 هل تريد مشاهدة إعلان لتوظيف البطل مجاناً؟')) {
+                    watchAdForUpgrade('hero');
+                }
             }
         }
 
         function upgradeHero() {
-            if (G.hasHero && G.gold >= upHeroCost) {
-                G.gold -= upHeroCost;
+            if (G.hasHero && G.gems >= upHeroCost) {
+                G.gems -= upHeroCost;
                 G.idleDmg += 2;
                 G.heroLv++;
                 upHeroCost = Math.floor(upHeroCost * 1.9);
                 updateUI();
                 save();
+                showToast('💪 تمت ترقية البطل!');
+            } else if (G.hasHero) {
+                if (confirm('💎 لا يوجد جواهر كافية!\n📺 هل تريد مشاهدة إعلان لترقية البطل مجاناً؟')) {
+                    watchAdForUpgrade('heroUpgrade');
+                }
             }
         }
 
@@ -1214,10 +1298,10 @@
             G.idleDmg = 0;
             G.hasHero = false;
             G.hearts = G.maxHearts;
-            upClickCost = 10;
-            upGoldCost = 80;
-            heroCost = 150;
-            upHeroCost = 300;
+            upClickCost = 15;
+            upGoldCost = 160;
+            heroCost = 120;
+            upHeroCost = 270;
             clearItems();
             G.levelFailed = false;
             updateUI();
@@ -1262,4 +1346,4 @@
         updateUI();
     </script>
 </body>
-</html>
+</html
