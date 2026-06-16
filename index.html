@@ -87,9 +87,12 @@
         .bottom-panel button:active{transform:scale(0.94);}
         .bottom-panel button.primary{background:linear-gradient(135deg,#e94560,#ff6b6b);border-color:#ff6b6b;}
         .bottom-panel button:disabled{opacity:0.35;}
+
+        /* === تكبير أيقونات التبويبات === */
         .tabs{display:flex;gap:2px;margin-bottom:2px;}
-        .tab{padding:7px 9px;background:#1a1a3a;border-radius:7px 7px 0 0;cursor:pointer;font-size:0.7rem;font-weight:bold;border:1px solid #333;border-bottom:none;}
+        .tab{padding:7px 12px;background:#1a1a3a;border-radius:7px 7px 0 0;cursor:pointer;font-size:1rem;font-weight:bold;border:1px solid #333;border-bottom:none;}
         .tab.active{background:#e94560;border-color:#e94560;}
+
         .tab-content{display:none;}.tab-content.active{display:block;}
         .shop-item{display:flex;justify-content:space-between;align-items:center;padding:7px;background:linear-gradient(135deg,#1a1a3a,#222244);border-radius:7px;margin:2px 0;border:1px solid #333;font-size:0.7rem;}
         .shop-item.ad-item{border:2px solid #00cec9;animation:glowMoney 2s infinite;}
@@ -171,7 +174,7 @@
         var achievements=[{id:'click100',n:'👆 مبتدئ النقر',d:'انقر 100 مرة',goal:100,icon:'👆'},{id:'level10',n:'🌱 بداية الرحلة',d:'المستوى 10',goal:10,icon:'🌱'},{id:'level50',n:'🔥 في المنتصف',d:'المستوى 50',goal:50,icon:'🔥'},{id:'level100',n:'👑 بطل الحلوى',d:'المستوى 100',goal:100,icon:'👑'},{id:'bomb20',n:'💣 خبير القنابل',d:'20 قنبلة',goal:20,icon:'💣'},{id:'candy100',n:'🍬 محب الحلوى',d:'100 حلوى',goal:100,icon:'🍬'},{id:'gems500',n:'💎 ثري',d:'500 جوهرة',goal:500,icon:'💎'},{id:'prestige1',n:'🌟 بداية جديدة',d:'أعد الدورة',goal:1,icon:'🌟'}];
         var dailyRewards=[{d:1,r:{gems:10,gold:500}},{d:2,r:{gems:20,gold:1000}},{d:3,r:{gems:30,gold:2000}},{d:4,r:{gems:50,gold:3000}},{d:5,r:{gems:80,gold:5000}},{d:6,r:{gems:100,gold:8000}},{d:7,r:{gems:200,gold:15000}}];
 
-        var UPDATE_URL='https://candyhero.pages.dev/index.html';
+        var UPDATE_URL='https://dzradwan2025.github.io/candyhero/index.html';
         var CURRENT_VERSION='1.0';
 
         function checkForUpdate(){showToast('🔄 جارٍ فحص التحديثات...');fetch(UPDATE_URL+'?v='+Date.now()).then(function(r){return r.text();}).then(function(code){if(code.length>2000){if(confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')){save();var blob=new Blob([code],{type:'text/html'});window.location.href=URL.createObjectURL(blob);}}else{showToast('✅ لديك أحدث إصدار v'+CURRENT_VERSION);}}).catch(function(){showToast('⚠️ تعذر الاتصال');});}
@@ -231,7 +234,13 @@
         function updateUI(){var d=diff(),sp=speed();document.getElementById('goldDisplay').textContent=fmt(G.gold);document.getElementById('gemsDisplay').textContent=fmt(G.gems);document.getElementById('levelDisplay').textContent=G.level;document.getElementById('levelTitle').textContent='⚔️ '+levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('difficultyText').textContent=d.n;document.getElementById('clicksRemaining').textContent=Math.max(0,G.clicksNeeded-G.clicksDone);document.getElementById('levelTarget').textContent=G.clicksNeeded;document.getElementById('progressBarFill').style.width=Math.min(100,(G.clicksDone/G.clicksNeeded)*100)+'%';document.getElementById('speedDisplay').textContent=sp.toFixed(1)+'x';document.getElementById('bombsHit').textContent=G.bombsHit;document.getElementById('candiesMissed').textContent=G.candiesMissed;document.getElementById('heartsDisplay').textContent=G.hearts;document.getElementById('menuHearts').textContent=G.hearts;document.getElementById('menuGems').textContent=G.gems;document.getElementById('upgradeClickCost').textContent=fmt(upClickCost);document.getElementById('upgradeGoldCost').textContent=fmt(upGoldCost);document.getElementById('heroCost').textContent=fmt(heroCost);document.getElementById('upgradeHeroCost').textContent=fmt(upHeroCost);document.getElementById('btnUpgradeClick').disabled=G.gold<upClickCost;document.getElementById('btnUpgradeGold').disabled=G.gold<upGoldCost;document.getElementById('btnHireHero').disabled=G.hasHero||G.gold<heroCost;document.getElementById('btnUpgradeHero').disabled=!G.hasHero||G.gold<upHeroCost;document.getElementById('btnPrestige').disabled=G.level<50;document.getElementById('prestigeGems').textContent=Math.floor(20+G.level*0.8+G.prestige*5);document.getElementById('character').textContent=G.charData[G.char].e;document.getElementById('menuHero').textContent=G.charData[G.char].e;checkAchievements();}
 
         function startSpawning(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}if(G.level<100&&G.hearts>0&&!G.levelFailed&&G.gameStarted&&!gamePaused){spawnInt=setInterval(spawn,spawnT());}}
-        function spawn(){if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;var mx=G.level<=3?3:G.level<=10?5:G.level<=25?7:G.level<=50?8:10;if(document.querySelectorAll('.falling-item').length>mx) return;var item=document.createElement('div');item.className='falling-item';var d=diff(),isB=Math.random()<d.b;if(isB){var b=bombs[Math.floor(Math.random()*bombs.length)];item.textContent=b.e;item.dataset.t='bomb';item.dataset.v=b.d+Math.floor(G.level/5);}else{var c=candies[Math.floor(Math.random()*candies.length)];item.textContent=c.e;item.dataset.t='candy';item.dataset.v=c.v;}item.dataset.clicked='false';item.dataset.checked='false';item.style.left=(Math.random()*80+5)+'%';item.style.top='-45px';var ft=fallT();item.style.animation='fall '+ft+'s linear';item.addEventListener('click',function(e){e.stopPropagation();clickItem(item,e);});item.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();clickItem(item,e);},{passive:false});document.getElementById('gameArea').appendChild(item);setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),(ft+0.8)*1000);}
+        function spawn(){if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;var mx=G.level<=3?3:G.level<=10?5:G.level<=25?7:G.level<=50?8:10;if(document.querySelectorAll('.falling-item').length>mx) return;var item=document.createElement('div');item.className='falling-item';var d=diff(),isB=Math.random()<d.b;if(isB){var b=bombs[Math.floor(Math.random()*bombs.length)];item.textContent=b.e;item.dataset.t='bomb';item.dataset.v=b.d+Math.floor(G.level/5);}else{var c=candies[Math.floor(Math.random()*candies.length)];item.textContent=c.e;item.dataset.t='candy';item.dataset.v=c.v;}item.dataset.clicked='false';item.dataset.checked='false';item.style.left=(Math.random()*80+5)+'%';item.style.top='-45px';var ft=fallT();item.style.animation='fall '+ft+'s linear';
+            // منع تحديث الصفحة عند السحب
+            item.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();clickItem(item,e);});
+            item.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();clickItem(item,e);},{passive:false});
+            document.getElementById('gameArea').appendChild(item);
+            setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),(ft+0.8)*1000);
+        }
 
         function clickItem(item,e){if(!G.gameStarted||G.hearts<=0||G.levelFailed||gamePaused) return;if(item.dataset.clicked==='true') return;var now=Date.now();if(now-lastClick<55) return;lastClick=now;item.dataset.clicked='true';item.dataset.checked='true';var t=item.dataset.t,v=parseInt(item.dataset.v);var r=item.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;if(t==='bomb'){if(G.shieldActive){showFloat('🛡️',x,y,'#00cec9');}else{G.bombsHit++;G.totalBombs++;G.clicksDone=Math.max(0,G.clicksDone-v);showFloat('💥 -'+v,x,y,'#ff4444');sfx('bomb');if(G.bombsHit>=G.maxBombs){lose('bombs');return;}}}else{G.totalCandies++;G.clicksDone+=v*dmg();G.totalClicks++;showFloat('+'+v*dmg(),x,y,'#ff69b4');sfx('candy');if(G.clicksDone>=G.clicksNeeded) levelUp();}G.quests.bomb10=Math.min(10,G.quests.bomb10+(t==='bomb'?1:0));G.quests.click50=Math.min(50,G.quests.click50+1);item.style.transform='scale(0)';item.style.opacity='0';setTimeout(function(el){return function(){if(el.parentNode) el.parentNode.removeChild(el);};}(item),150);updateUI();save();}
         function showFloat(t,x,y,c){var el=document.createElement('div');el.style.cssText='position:fixed;pointer-events:none;font-weight:bold;font-size:1.2rem;z-index:100;animation:burst 1s ease-out forwards;';el.textContent=t;el.style.left=x+'px';el.style.top=y+'px';el.style.color=c||'#FFD700';document.body.appendChild(el);setTimeout(function(){if(el.parentNode) el.parentNode.removeChild(el);},1000);}
@@ -241,7 +250,7 @@
         function showLevelUp(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}G.gameStarted=false;document.getElementById('nextLevelName').textContent=levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('transitionReward').textContent=goldR();openModal('levelTransition');}
         function continueLevel(){closeModal('levelTransition');beginPlay();}
 
-        // ========== فحص العناصر الفائتة (الإصلاح الكامل) ==========
+        // ========== فحص العناصر الفائتة (الإصلاح الكامل مع نافذة الخسارة) ==========
         function checkMissed(){
             if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;
             var ga=document.getElementById('gameArea');if(!ga) return;
@@ -301,6 +310,9 @@
         function toggleMusic(){musicOn=!musicOn;var t=document.getElementById('toggleMusic');if(t) t.classList.toggle('active',musicOn);}
         function toggleSFX(){sfxOn=!sfxOn;var t=document.getElementById('toggleSFX');if(t) t.classList.toggle('active',sfxOn);}
 
+        // إضافة زر الإغلاق لجميع النوافذ (موجود بالفعل)
+        // إضافة منع التحديث عند السحب (تم في spawn)
+        // رابط التحديث محدث
         load();updateUI();
     </script>
 </body>
