@@ -108,6 +108,10 @@
         .quest-item{display:flex;justify-content:space-between;align-items:center;padding:5px;background:rgba(0,206,201,0.07);border-radius:5px;margin:2px 0;border:1px solid #00cec9;color:#fff;font-size:0.65rem;}
         .toast{position:fixed;bottom:40%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#fff;padding:8px 16px;border-radius:14px;z-index:700;font-weight:bold;font-size:0.78rem;opacity:0;transition:opacity 0.3s;pointer-events:none;}
         .toast.show{opacity:1;}
+
+        /* زر تحديث APK عن بعد */
+        .apk-update-btn{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;padding:8px 16px;border-radius:10px;font-size:0.8rem;font-weight:bold;cursor:pointer;margin:5px 0;width:88%;}
+        .apk-update-btn:active{transform:scale(0.95);}
     </style>
 </head>
 <body>
@@ -176,7 +180,45 @@
         var UPDATE_URL='https://dzradwan2025.github.io/candyhero/index.html';
         var CURRENT_VERSION='1.0';
 
-        function checkForUpdate(){showToast('🔄 جارٍ فحص التحديثات...');fetch(UPDATE_URL+'?v='+Date.now()).then(function(r){return r.text();}).then(function(code){if(code.length>2000){if(confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')){save();var blob=new Blob([code],{type:'text/html'});window.location.href=URL.createObjectURL(blob);}}else{showToast('✅ لديك أحدث إصدار v'+CURRENT_VERSION);}}).catch(function(){showToast('⚠️ تعذر الاتصال');});}
+        // التحقق من وجود تحديث عن بعد (لـ APK)
+        function checkForUpdate(){
+            showToast('🔄 جارٍ فحص التحديثات...');
+            fetch(UPDATE_URL+'?v='+Date.now())
+                .then(function(r){return r.text();})
+                .then(function(code){
+                    if(code.length>2000){
+                        if(confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')){
+                            save();
+                            var blob=new Blob([code],{type:'text/html'});
+                            window.location.href=URL.createObjectURL(blob);
+                        }
+                    }else{
+                        showToast('✅ لديك أحدث إصدار v'+CURRENT_VERSION);
+                    }
+                })
+                .catch(function(){
+                    showToast('⚠️ تعذر الاتصال');
+                });
+        }
+
+        // دالة تحديث APK عن بعد (تفحص الإصدار)
+        function checkAPKUpdate(){
+            showToast('📱 جارٍ فحص تحديث APK...');
+            fetch('https://dzradwan2025.github.io/candyhero/version.json?v='+Date.now())
+                .then(function(r){return r.json();})
+                .then(function(data){
+                    if(data.version && data.version > CURRENT_VERSION){
+                        if(confirm('📱 يوجد تحديث جديد للتطبيق (الإصدار '+data.version+')\n\nهل تريد تحميله؟')){
+                            window.location.href = data.download_url || 'https://dzradwan2025.github.io/candyhero/app-release.apk';
+                        }
+                    }else{
+                        showToast('✅ التطبيق محدث (الإصدار '+CURRENT_VERSION+')');
+                    }
+                })
+                .catch(function(){
+                    showToast('⚠️ تعذر فحص تحديث APK');
+                });
+        }
 
         function save(){localStorage.setItem('CHF8',JSON.stringify({G:G,ucc:upClickCost,ugc:upGoldCost,hc:heroCost,uhc:upHeroCost,adc:adCount,add:adDate}));}
         function load(){var s=localStorage.getItem('CHF8');if(s){var d=JSON.parse(s);G=d.G||G;upClickCost=d.ucc||10;upGoldCost=d.ugc||80;heroCost=d.hc||150;upHeroCost=d.uhc||300;adCount=d.adc||0;adDate=d.add||'';if(!G.chars) G.chars=['superhero'];if(!G.hearts) G.hearts=10;if(!G.maxMissed) G.maxMissed=5;if(!G.maxBombs) G.maxBombs=5;if(!G.totalClicks) G.totalClicks=0;if(!G.totalLevels) G.totalLevels=0;if(!G.totalBombs) G.totalBombs=0;if(!G.totalCandies) G.totalCandies=0;if(!G.quests) G.quests={click50:0,level5:0,bomb10:0};if(G.isVIP) document.getElementById('vipBadge').style.display='inline';}updateUI();}
@@ -211,7 +253,7 @@
         function claimQuest(i){var rewards=[30,50,20];if(G['q_'+i]) return;G.gems+=rewards[i];G['q_'+i]=true;prepareQuestsModal();updateUI();save();sfx('buy');showToast('🎯 +'+rewards[i]+'💎');}
 
         function openShop(){showShopModal();}
-        function showShopModal(){var el=document.getElementById('shopModal');if(el){el.classList.add('show');return;}var d=document.createElement('div');d.id='shopModal';d.className='modal';d.innerHTML='<div class="modal-bg" onclick="closeModal(\'shopModal\')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button><h2>🛒 المتجر</h2><div style="width:100%;max-height:220px;overflow-y:auto;"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div></div></div>';document.body.appendChild(d);setTimeout(function(){d.classList.add('show');},50);}
+        function showShopModal(){var el=document.getElementById('shopModal');if(el){el.classList.add('show');return;}var d=document.createElement('div');d.id='shopModal';d.className='modal';d.innerHTML='<div class="modal-bg" onclick="closeModal(\'shopModal\')"></div><div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button><h2>🛒 المتجر</h2><div style="width:100%;max-height:220px;overflow-y:auto;"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div><div class="shop-item" style="margin-top:8px;border:2px solid #ff6b6b;"><div class="shop-item-info">📱 تحديث التطبيق (APK)</div><button class="apk-update-btn" onclick="checkAPKUpdate();closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">🔄</button></div></div></div>';document.body.appendChild(d);setTimeout(function(){d.classList.add('show');},50);}
 
         function saveToCloudLocal(){if(!G.isVIP){showToast('⚠️ VIP فقط!');return;}if(!G.saveCode) G.saveCode=prompt('أدخل رمز الحفظ:','')||'player1';var cd={G:G,ucc:upClickCost,ugc:upGoldCost,hc:heroCost,uhc:upHeroCost};localStorage.setItem('CLOUD_'+G.saveCode,JSON.stringify(cd));showToast('☁️ تم الحفظ!');}
         function loadFromCloudLocal(){if(!G.isVIP){showToast('⚠️ VIP فقط!');return;}var code=prompt('أدخل رمز الحفظ:','')||'player1';var cloud=localStorage.getItem('CLOUD_'+code);if(cloud){var d=JSON.parse(cloud);G=d.G||G;upClickCost=d.ucc||10;upGoldCost=d.ugc||80;heroCost=d.hc||150;upHeroCost=d.uhc||300;G.saveCode=code;save();updateUI();showToast('📥 مرحباً بعودتك!');}else{showToast('❌ لم يتم العثور على حفظ');}}
@@ -234,7 +276,6 @@
 
         function startSpawning(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}if(G.level<100&&G.hearts>0&&!G.levelFailed&&G.gameStarted&&!gamePaused){spawnInt=setInterval(spawn,spawnT());}}
         function spawn(){if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;var mx=G.level<=3?3:G.level<=10?5:G.level<=25?7:G.level<=50?8:10;if(document.querySelectorAll('.falling-item').length>mx) return;var item=document.createElement('div');item.className='falling-item';var d=diff(),isB=Math.random()<d.b;if(isB){var b=bombs[Math.floor(Math.random()*bombs.length)];item.textContent=b.e;item.dataset.t='bomb';item.dataset.v=b.d+Math.floor(G.level/5);}else{var c=candies[Math.floor(Math.random()*candies.length)];item.textContent=c.e;item.dataset.t='candy';item.dataset.v=c.v;}item.dataset.clicked='false';item.dataset.checked='false';item.style.left=(Math.random()*80+5)+'%';item.style.top='-45px';var ft=fallT();item.style.animation='fall '+ft+'s linear';
-            // منع تحديث الصفحة عند السحب
             item.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();clickItem(item,e);});
             item.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();clickItem(item,e);},{passive:false});
             document.getElementById('gameArea').appendChild(item);
@@ -249,7 +290,6 @@
         function showLevelUp(){if(spawnInt){clearInterval(spawnInt);spawnInt=null;}G.gameStarted=false;document.getElementById('nextLevelName').textContent=levels[(G.level-1)%levels.length]+' '+G.level;document.getElementById('transitionReward').textContent=goldR();openModal('levelTransition');}
         function continueLevel(){closeModal('levelTransition');beginPlay();}
 
-        // ========== فحص العناصر الفائتة (الإصلاح الكامل مع نافذة الخسارة) ==========
         function checkMissed(){
             if(gamePaused||!G.gameStarted||G.hearts<=0||G.levelFailed) return;
             var ga=document.getElementById('gameArea');if(!ga) return;
@@ -260,7 +300,6 @@
                 if(item.dataset.checked==='true') continue;
                 var ir=item.getBoundingClientRect();
                 var itemBottom=ir.bottom-gr.top;
-                // تجاوز الخط الأحمر
                 if(itemBottom>=gy){
                     item.dataset.checked='true';
                     if(item.dataset.t==='candy'){
@@ -309,9 +348,6 @@
         function toggleMusic(){musicOn=!musicOn;var t=document.getElementById('toggleMusic');if(t) t.classList.toggle('active',musicOn);}
         function toggleSFX(){sfxOn=!sfxOn;var t=document.getElementById('toggleSFX');if(t) t.classList.toggle('active',sfxOn);}
 
-        // إضافة زر الإغلاق لجميع النوافذ (موجود بالفعل)
-        // إضافة منع التحديث عند السحب (تم في spawn)
-        // رابط التحديث محدث
         load();updateUI();
     </script>
 </body>
