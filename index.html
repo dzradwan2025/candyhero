@@ -14,7 +14,6 @@
 
         * { overscroll-behavior: none !important; }
 
-        /* منع التحديد والنقر المزدوج */
         .falling-item {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -1103,7 +1102,7 @@
             beginPlay(); }
 
         // ============================================================
-        // 11. فحص العناصر الفائتة والخسارة - مع منع تخطي الخط الأحمر
+        // 11. فحص العناصر الفائتة والخسارة - إصلاح عداد الحلوى الفائتة
         // ============================================================
         function checkMissed() {
             if (gamePaused || !G.gameStarted || G.hearts <= 0 || G.levelFailed) return;
@@ -1117,13 +1116,16 @@
                 if (item.dataset.checked === 'true') continue;
                 var ir = item.getBoundingClientRect();
                 var itemBottom = ir.bottom - gr.top;
-                if (itemBottom >= gy - 5) {
+                // زيادة الحساسية لاكتشاف التخطي (هامش 3px)
+                if (itemBottom >= gy - 3) {
                     item.dataset.checked = 'true';
                     if (item.dataset.t === 'candy') {
                         G.candiesMissed++;
                         var p = penalty();
                         G.clicksDone = Math.max(0, G.clicksDone - p);
                         showMissedText(ir.left + ir.width / 2, ir.top, '🍬 فائتة! (' + G.candiesMissed + '/' + G.maxMissed + ')', '#ffaa00');
+                        // تحديث العداد فوراً
+                        document.getElementById('candiesMissed').textContent = G.candiesMissed;
                         if (G.candiesMissed >= G.maxMissed) { lose('candies'); return; }
                     } else if (item.dataset.t === 'bomb') {
                         showMissedText(ir.left + ir.width / 2, ir.top, '💣 نجوت!', '#4ecca3');
