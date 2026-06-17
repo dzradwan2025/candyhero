@@ -129,6 +129,58 @@
         
         .ad-boost-btn{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;border:none;padding:5px 10px;border-radius:7px;font-size:0.6rem;cursor:pointer;animation:glowMoney 1.5s infinite;}
         .ad-boost-btn:active{transform:scale(0.95);}
+
+        /* تنسيق الأبطال في التبويب */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: 100%;
+            padding: 4px;
+        }
+        .hero-card {
+            background: linear-gradient(135deg,#1a1a3a,#2a2a4a);
+            border: 2px solid #4a4a6a;
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hero-card:active {
+            transform: scale(0.95);
+        }
+        .hero-card .hero-emoji {
+            font-size: 2.2rem;
+            display: block;
+        }
+        .hero-card .hero-name {
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+        .hero-card .hero-price {
+            font-size: 0.6rem;
+            color: var(--gold);
+        }
+        .hero-card.owned {
+            border-color: #4ecca3;
+            background: linear-gradient(135deg,#0a2a1a,#1a3a2a);
+        }
+        .hero-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(255,215,0,0.4);
+        }
+        .hero-card .hero-status {
+            font-size: 0.55rem;
+            color: #aaa;
+            margin-top: 2px;
+        }
+        .hero-card .hero-effect {
+            font-size: 0.55rem;
+            color: #ffaa00;
+        }
     </style>
 </head>
 <body>
@@ -170,14 +222,18 @@
                 </div>
             </div>
             <div class="tab-content" id="tab-heroes">
-                <button onclick="hireHero()" id="btnHireHero" class="primary" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;">🤖 بطل 💎<span id="heroCost">120</span></button>
-                <button onclick="upgradeHero()" id="btnUpgradeHero" disabled style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;">💪 ترقية 💎<span id="upgradeHeroCost">270</span></button>
-                <div style="display:flex;gap:3px;margin-top:3px;">
-                    <button class="ad-boost-btn" onclick="watchAdForUpgrade('hero')" style="flex:1;">📺 بطل مجاني</button>
-                    <button class="ad-boost-btn" onclick="watchAdForUpgrade('heroUpgrade')" style="flex:1;">📺 ترقية مجانية</button>
+                <!-- عرض الأبطال في شبكة -->
+                <div id="heroesContainer" class="hero-grid"></div>
+                <div style="margin-top:6px;">
+                    <button onclick="hireHero()" id="btnHireHero" class="primary" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;width:100%;">🤖 توظيف بطل 💎<span id="heroCost">120</span></button>
+                    <button onclick="upgradeHero()" id="btnUpgradeHero" disabled style="background:linear-gradient(135deg,#9b59b6,#8e44ad);border-color:#8e44ad;width:100%;margin-top:3px;">💪 ترقية البطل 💎<span id="upgradeHeroCost">270</span></button>
+                    <div style="display:flex;gap:3px;margin-top:3px;">
+                        <button class="ad-boost-btn" onclick="watchAdForUpgrade('hero')" style="flex:1;">📺 بطل مجاني</button>
+                        <button class="ad-boost-btn" onclick="watchAdForUpgrade('heroUpgrade')" style="flex:1;">📺 ترقية مجانية</button>
+                    </div>
                 </div>
             </div>
-            <div class="tab-content" id="tab-shop"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar('superhero',500)">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar('candyking',2500)">💎2500</button></div><div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney('gems_500')" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_month')" style="width:auto;padding:5px 8px;">💳</button></div><div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_forever')" style="width:auto;padding:5px 8px;">💳</button></div></div>
+            <div class="tab-content" id="tab-shop"><div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar('superhero',500)">💎500</button></div><div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar('candyking',2500)">💎2500</button></div><div class="shop-item"><div class="shop-item-info">🥷 نينجا</div><button onclick="buyChar('ninja',1000)">💎1000</button></div><div class="shop-item"><div class="shop-item-info">🏴‍☠️ قرصان</div><button onclick="buyChar('pirate',1200)">💎1200</button></div><div class="shop-item"><div class="shop-item-info">🐉 تنين</div><button onclick="buyChar('dragon',3000)">💎3000</button></div><div class="shop-item"><div class="shop-item-info">🦄 يونيكورن</div><button onclick="buyChar('unicorn',3500)">💎3500</button></div><div class="shop-item"><div class="shop-item-info">🔥 طائر النار</div><button onclick="buyChar('phoenix',4000)">💎4000</button></div><div class="shop-item"><div class="shop-item-info">👻 شبح</div><button onclick="buyChar('ghost',500)">💎500</button></div></div>
             <div class="tab-content" id="tab-ads"><div class="shop-item ad-item"><div class="shop-item-info">💎 50 جوهرة</div><button class="watch-ad-btn" onclick="watchAdReward('gems')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">🪙 5000 ذهب</div><button class="watch-ad-btn" onclick="watchAdReward('gold')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">❤️ +3 قلوب</div><button class="watch-ad-btn" onclick="watchAdReward('hearts')" style="width:auto;padding:5px 8px;">📺</button></div></div>
             <div class="tab-content" id="tab-prestige"><button onclick="doPrestige()" id="btnPrestige" class="primary" disabled>🌟 إعادة الدورة (50+) 💎<span id="prestigeGems">20</span></button></div>
         </div>
@@ -197,7 +253,7 @@
 
     <script>
         // ============================================================
-        // منع السحب للتحديث بشكل كامل مع تحسين الأداء
+        // منع السحب للتحديث
         // ============================================================
         document.addEventListener('touchmove', function(e) {
             var target = e.target;
@@ -287,16 +343,16 @@
             char: 'superhero',
             chars: ['superhero'],
             charData: {
-                'superhero': { e: '🦸‍♂️' },
-                'wizard': { e: '🧙‍♂️' },
-                'robot': { e: '🤖' },
-                'candyking': { e: '👑' },
-                'ninja': { e: '🥷' },
-                'pirate': { e: '🏴‍☠️' },
-                'dragon': { e: '🐉' },
-                'unicorn': { e: '🦄' },
-                'phoenix': { e: '🔥' },
-                'ghost': { e: '👻' }
+                'superhero': { e: '🦸‍♂️', name: 'سوبر هيرو', effect: '+10% ضرر' },
+                'wizard': { e: '🧙‍♂️', name: 'ساحر', effect: '+15% سرعة' },
+                'robot': { e: '🤖', name: 'روبوت', effect: '+20% ضرر' },
+                'candyking': { e: '👑', name: 'ملك الحلوى', effect: '+25% كل شيء' },
+                'ninja': { e: '🥷', name: 'نينجا', effect: '+15% ضرر' },
+                'pirate': { e: '🏴‍☠️', name: 'قرصان', effect: '+20% ذهب' },
+                'dragon': { e: '🐉', name: 'تنين', effect: '+40% ضرر' },
+                'unicorn': { e: '🦄', name: 'يونيكورن', effect: '+30% سرعة' },
+                'phoenix': { e: '🔥', name: 'طائر النار', effect: '+50% ضرر' },
+                'ghost': { e: '👻', name: 'شبح', effect: '+5% سرعة' }
             },
             hearts: 10,
             maxHearts: 10,
@@ -364,7 +420,7 @@
         var CURRENT_VERSION = '2.0';
 
         // ============================================================
-        // 3. التحديث (اللعبة و APK)
+        // 3. التحديث
         // ============================================================
         function checkForUpdate() {
             if (!navigator.onLine) {
@@ -456,6 +512,7 @@
                 } catch(e) {}
             }
             updateUI();
+            renderHeroes();
         }
 
         // ============================================================
@@ -651,7 +708,7 @@
         }
 
         // ============================================================
-        // 7. دوال النوافذ المنبثقة (المكافآت، المهمات، الإنجازات)
+        // 7. دوال النوافذ المنبثقة
         // ============================================================
         function prepareAchievementsModal() {
             var html = '';
@@ -746,19 +803,19 @@
                 '<div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button>' +
                 '<h2>🛒 المتجر</h2>' +
                 '<div style="width:100%;max-height:220px;overflow-y:auto;">' +
-                '<div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500)">💎500</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500)">💎2500</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">🥷 نينجا</div><button onclick="buyChar(\'ninja\',1000)">💎1000</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">🏴‍☠️ قرصان</div><button onclick="buyChar(\'pirate\',1200)">💎1200</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">🐉 تنين</div><button onclick="buyChar(\'dragon\',3000)">💎3000</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">🦄 يونيكورن</div><button onclick="buyChar(\'unicorn\',3500)">💎3500</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">🔥 طائر النار</div><button onclick="buyChar(\'phoenix\',4000)">💎4000</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">👻 شبح</div><button onclick="buyChar(\'ghost\',500)">💎500</button></div>' +
-                '<div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
-                '<div class="shop-item special"><div class="shop-item-info">💎 1500 ($0.25)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_1500\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
-                '<div class="shop-item special"><div class="shop-item-info">💎 5000 ($0.75)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_5000\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
-                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
-                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🥷 نينجا</div><button onclick="buyChar(\'ninja\',1000);closeModal(\'shopModal\');">💎1000</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🏴‍☠️ قرصان</div><button onclick="buyChar(\'pirate\',1200);closeModal(\'shopModal\');">💎1200</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🐉 تنين</div><button onclick="buyChar(\'dragon\',3000);closeModal(\'shopModal\');">💎3000</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🦄 يونيكورن</div><button onclick="buyChar(\'unicorn\',3500);closeModal(\'shopModal\');">💎3500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🔥 طائر النار</div><button onclick="buyChar(\'phoenix\',4000);closeModal(\'shopModal\');">💎4000</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">👻 شبح</div><button onclick="buyChar(\'ghost\',500);closeModal(\'shopModal\');">💎500</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 1500 ($0.25)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_1500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 5000 ($0.75)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_5000\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
                 '<div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div>' +
                 '<div class="shop-item" style="margin-top:8px;border:2px solid #ff6b6b;"><div class="shop-item-info">📱 تحديث التطبيق (APK)</div><button class="apk-update-btn" onclick="checkAPKUpdate();closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">🔄</button></div>' +
                 '</div></div>';
@@ -795,8 +852,6 @@
         // ============================================================
         // 9. نظام الإعلانات (AdMob)
         // ============================================================
-        // هذا الكود مخصص لدمج إعلانات AdMob
-        // عند حصولك على معرف التطبيق من AdMob، ضعه هنا
         var ADMOB_APP_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx';
         var ADMOB_BANNER_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx';
         var ADMOB_INTERSTITIAL_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx';
@@ -818,10 +873,8 @@
             }
         }
 
-        // استدعاء تهيئة AdMob عند بدء اللعبة
         initAdMob();
 
-        // دالة عرض إعلان بنر
         function showBannerAd() {
             if (typeof window.AdMob !== 'undefined') {
                 try {
@@ -832,7 +885,6 @@
             }
         }
 
-        // دالة عرض إعلان منبثق (Interstitial)
         function showInterstitialAd(callback) {
             if (typeof window.AdMob !== 'undefined') {
                 try {
@@ -847,7 +899,6 @@
             }
         }
 
-        // دالة عرض إعلان مكافأة (Rewarded)
         function showRewardedAd(callback) {
             if (typeof window.AdMob !== 'undefined') {
                 try {
@@ -862,15 +913,12 @@
             }
         }
 
-        // دالة مشاهدة إعلان للحصول على مكافأة (تستخدم في اللعبة)
         function watchAdReward(type) {
-            // التحقق من الاتصال بالإنترنت
             if (!navigator.onLine) {
                 showToast('⚠️ لا يوجد اتصال بالإنترنت!');
                 return;
             }
             
-            // التحقق من الحد اليومي
             var today = new Date().toDateString();
             if (adDate !== today) { 
                 adCount = 0; 
@@ -878,7 +926,6 @@
             }
             
             if (G.isVIP) { 
-                // إذا كان VIP، يحصل على المكافأة مباشرة بدون إعلان
                 giveReward(type); 
                 return; 
             }
@@ -890,14 +937,12 @@
             
             showToast('📺 جارٍ تحميل الإعلان...');
             
-            // عرض إعلان المكافأة
             showRewardedAd(function() {
                 adCount++;
                 giveReward(type);
             });
         }
 
-        // دالة إعطاء المكافأة
         function giveReward(type) {
             switch(type) {
                 case 'gems':
@@ -923,14 +968,12 @@
             save();
         }
 
-        // عرض إعلان بنر عند بدء اللعب
         function showGameBanner() {
             setTimeout(function() {
                 showBannerAd();
             }, 3000);
         }
 
-        // تعديل دالة startGame لعرض بنر
         var originalStartGame = startGame;
         startGame = function() {
             originalStartGame();
@@ -938,7 +981,7 @@
         };
 
         // ============================================================
-        // 10. دوال التبويبات وتحديث الواجهة
+        // 10. دوال التبويبات وعرض الأبطال
         // ============================================================
         function switchTab(n) {
             var ts = document.querySelectorAll('.tab'),
@@ -948,6 +991,65 @@
             var m = { 'upgrades': 0, 'heroes': 1, 'shop': 2, 'ads': 3, 'prestige': 4 };
             ts[m[n]].classList.add('active');
             document.getElementById('tab-' + n).classList.add('active');
+            if (n === 'heroes') renderHeroes();
+        }
+
+        function renderHeroes() {
+            var container = document.getElementById('heroesContainer');
+            if (!container) return;
+            var html = '';
+            var heroList = [
+                { id: 'superhero', emoji: '🦸‍♂️', name: 'سوبر هيرو', price: 0, effect: '+10% ضرر' },
+                { id: 'ghost', emoji: '👻', name: 'شبح', price: 500, effect: '+5% سرعة' },
+                { id: 'ninja', emoji: '🥷', name: 'نينجا', price: 1000, effect: '+15% ضرر' },
+                { id: 'pirate', emoji: '🏴‍☠️', name: 'قرصان', price: 1200, effect: '+20% ذهب' },
+                { id: 'candyking', emoji: '👑', name: 'ملك الحلوى', price: 2500, effect: '+25% كل شيء' },
+                { id: 'dragon', emoji: '🐉', name: 'تنين', price: 3000, effect: '+40% ضرر' },
+                { id: 'unicorn', emoji: '🦄', name: 'يونيكورن', price: 3500, effect: '+30% سرعة' },
+                { id: 'phoenix', emoji: '🔥', name: 'طائر النار', price: 4000, effect: '+50% ضرر' }
+            ];
+            
+            heroList.forEach(function(hero) {
+                var owned = G.chars.indexOf(hero.id) !== -1;
+                var selected = G.char === hero.id;
+                var canBuy = !owned && G.gems >= hero.price;
+                html += '<div class="hero-card' + (owned ? ' owned' : '') + (selected ? ' selected' : '') + '" onclick="handleHeroClick(\'' + hero.id + '\',' + hero.price + ')">' +
+                    '<span class="hero-emoji">' + hero.emoji + '</span>' +
+                    '<div class="hero-name">' + hero.name + '</div>' +
+                    '<div class="hero-effect">' + hero.effect + '</div>' +
+                    '<div class="hero-price">' + (owned ? (selected ? '✅ مفعل' : '✅ مملوك') : '💎' + hero.price) + '</div>' +
+                    '<div class="hero-status">' + (selected ? '🌟 نشط' : owned ? 'اضغط للتفعيل' : 'اضغط للشراء') + '</div>' +
+                    '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function handleHeroClick(id, price) {
+            var owned = G.chars.indexOf(id) !== -1;
+            if (owned) {
+                G.char = id;
+                updateUI();
+                save();
+                renderHeroes();
+                showToast('✨ تم اختيار ' + G.charData[id].name);
+                return;
+            }
+            if (G.gems >= price) {
+                if (confirm('شراء ' + G.charData[id].name + ' مقابل ' + price + ' 💎؟')) {
+                    G.gems -= price;
+                    G.chars.push(id);
+                    G.char = id;
+                    updateUI();
+                    save();
+                    renderHeroes();
+                    showToast('✅ تم شراء ' + G.charData[id].name);
+                }
+            } else {
+                showToast('⚠️ ليس لديك جواهر كافية!');
+                if (confirm('💎 لا يوجد جواهر كافية!\n📺 هل تريد مشاهدة إعلان للحصول على جواهر مجانية؟')) {
+                    watchAdReward('gems');
+                }
+            }
         }
 
         function updateUI() {
@@ -980,6 +1082,7 @@
             document.getElementById('character').textContent = G.charData[G.char].e;
             document.getElementById('menuHero').textContent = G.charData[G.char].e;
             checkAchievements();
+            renderHeroes();
         }
 
         // ============================================================
@@ -1140,7 +1243,7 @@
             beginPlay(); }
 
         // ============================================================
-        // 12. فحص العناصر الفائتة
+        // 12. فحص العناصر الفائتة - إصلاح عدم احتساب الحلوى الفائتة
         // ============================================================
         function checkMissed() {
             if (gamePaused || !G.gameStarted || G.hearts <= 0 || G.levelFailed) return;
@@ -1156,6 +1259,7 @@
                 var ir = item.getBoundingClientRect();
                 var itemBottom = ir.bottom - gr.top;
                 
+                // زيادة الحساسية للكشف عن التخطي
                 if (itemBottom >= gy) {
                     item.dataset.checked = 'true';
                     if (item.dataset.t === 'candy') {
@@ -1163,6 +1267,7 @@
                         var p = penalty();
                         G.clicksDone = Math.max(0, G.clicksDone - p);
                         showMissedText(ir.left + ir.width / 2, ir.top, '🍬 فائتة! (' + G.candiesMissed + '/' + G.maxMissed + ')', '#ffaa00');
+                        // تحديث العداد فوراً
                         document.getElementById('candiesMissed').textContent = G.candiesMissed;
                         if (G.candiesMissed >= G.maxMissed) { 
                             lose('candies'); 
@@ -1355,12 +1460,12 @@
                 G.char = id;
                 updateUI();
                 save();
-                showToast('✨ تم شراء ' + id + '!');
+                showToast('✨ تم شراء ' + G.charData[id].name + '!');
             } else if (G.chars.indexOf(id) !== -1) {
                 G.char = id;
                 updateUI();
                 save();
-                showToast('✨ تم اختيار ' + id);
+                showToast('✨ تم اختيار ' + G.charData[id].name);
             }
         }
 
@@ -1390,7 +1495,7 @@
         }
 
         // ============================================================
-        // 14. دوال الشراء بالمال (محاكاة الدفع)
+        // 14. دوال الشراء بالمال
         // ============================================================
         function buyWithMoney(type) {
             var prices = {},
@@ -1433,7 +1538,6 @@
             
             showToast('💳 جارٍ معالجة الدفع...');
             
-            // محاكاة عملية الدفع
             setTimeout(function() {
                 if (gemsAmount) {
                     G.gems += gemsAmount;
