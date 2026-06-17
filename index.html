@@ -10,9 +10,7 @@
     <style>
         :root { --gold:#FFD700; --gem:#9b59b6; --accent:#e94560; }
         
-        /* ============================================================
-           منع السحب والارتداد نهائياً (Pull-to-Refresh / Overscroll)
-           ============================================================ */
+        /* منع السحب والارتداد نهائياً */
         html, body {
             overscroll-behavior: none !important;
             overscroll-behavior-y: none !important;
@@ -25,25 +23,181 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
             background: #1a1a2e;
             font-family: 'Arial', sans-serif;
         }
 
-        /* منع الارتداد في كل العناصر */
         * {
             overscroll-behavior: none !important;
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
         }
 
-        /* منع التمرير في العناصر غير القابلة للتمرير */
-        .no-scroll {
-            overflow: hidden !important;
+        /* شريط السحب الجديد */
+        .drag-handle {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(30,30,50,0.95);
+            border-top: 2px solid #4a4a6a;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: none;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateY(0);
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         }
 
+        .drag-handle .drag-bar {
+            width: 50px;
+            height: 5px;
+            background: #6a6a8a;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: background 0.3s;
+        }
+
+        .drag-handle .drag-text {
+            color: #aaa;
+            font-size: 0.6rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .drag-handle .drag-arrow {
+            font-size: 0.8rem;
+            color: #4a4a6a;
+            margin: 2px 0;
+            transition: transform 0.3s;
+        }
+
+        .drag-handle.open .drag-arrow {
+            transform: rotate(180deg);
+        }
+
+        .drag-handle.open {
+            transform: translateY(0);
+        }
+
+        /* القائمة المنزلقة */
+        .slide-up-panel {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            max-height: 0;
+            background: rgba(30,30,50,0.98);
+            border-top: 2px solid #4a4a6a;
+            z-index: 999;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.6);
+            overscroll-behavior: contain;
+        }
+
+        .slide-up-panel.open {
+            max-height: 60vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .slide-up-panel-content {
+            padding: 15px 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slide-up-panel-content .panel-title {
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .slide-up-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: linear-gradient(135deg,#1a1a3a,#222244);
+            border-radius: 10px;
+            border: 1px solid #333;
+            color: #fff;
+            transition: all 0.2s;
+        }
+
+        .slide-up-item:active {
+            transform: scale(0.97);
+        }
+
+        .slide-up-item .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .slide-up-item .item-name {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .slide-up-item .item-desc {
+            font-size: 0.6rem;
+            color: #aaa;
+        }
+
+        .slide-up-item .item-price {
+            font-size: 0.7rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .slide-up-item .item-btn {
+            background: linear-gradient(135deg,#e94560,#ff6b6b);
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-size: 0.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slide-up-item .item-btn:active {
+            transform: scale(0.95);
+        }
+
+        .slide-up-item .item-btn.vip-btn {
+            background: linear-gradient(135deg,#f39c12,#e67e22);
+        }
+
+        .slide-up-item .item-btn.cloud-btn {
+            background: linear-gradient(135deg,#00b894,#00cec9);
+        }
+
+        .slide-up-item .item-btn.apk-btn {
+            background: linear-gradient(135deg,#ff6b6b,#ee5a24);
+        }
+
+        /* تعديل ليكون فوق كل شيء */
+        .drag-handle, .slide-up-panel {
+            pointer-events: auto;
+        }
+
+        /* باقي الأنماط كما هي */
         .falling-item {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -214,6 +368,82 @@
 </head>
 <body>
 
+    <!-- شريط السحب والعروض المنزلقة -->
+    <div class="drag-handle" id="dragHandle" onclick="toggleSlidePanel()">
+        <div class="drag-bar"></div>
+        <div class="drag-arrow">▲</div>
+        <div class="drag-text">اسحب للعروض</div>
+    </div>
+
+    <div class="slide-up-panel" id="slidePanel">
+        <div class="slide-up-panel-content">
+            <div class="panel-title">🛒 العروض الخاصة</div>
+            
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">💎 500 جوهرة</span>
+                    <span class="item-desc">احصل على 500 جوهرة</span>
+                </div>
+                <span class="item-price">$0.10</span>
+                <button class="item-btn" onclick="buyWithMoney('gems_500')">شراء</button>
+            </div>
+
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">💎 1500 جوهرة</span>
+                    <span class="item-desc">احصل على 1500 جوهرة</span>
+                </div>
+                <span class="item-price">$0.25</span>
+                <button class="item-btn" onclick="buyWithMoney('gems_1500')">شراء</button>
+            </div>
+
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">💎 5000 جوهرة</span>
+                    <span class="item-desc">احصل على 5000 جوهرة</span>
+                </div>
+                <span class="item-price">$0.75</span>
+                <button class="item-btn" onclick="buyWithMoney('gems_5000')">شراء</button>
+            </div>
+
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">👑 VIP شهري</span>
+                    <span class="item-desc">مزايا VIP لمدة 30 يوماً</span>
+                </div>
+                <span class="item-price">$0.99</span>
+                <button class="item-btn vip-btn" onclick="buyWithMoney('vip_month')">تفعيل</button>
+            </div>
+
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">👑 VIP دائم</span>
+                    <span class="item-desc">مزايا VIP للأبد</span>
+                </div>
+                <span class="item-price">$4.99</span>
+                <button class="item-btn vip-btn" onclick="buyWithMoney('vip_forever')">تفعيل</button>
+            </div>
+
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">☁️ حفظ سحابي (VIP)</span>
+                    <span class="item-desc">احفظ تقدمك على السحابة</span>
+                </div>
+                <span class="item-price">VIP</span>
+                <button class="item-btn cloud-btn" onclick="saveToCloudLocal()">💾 حفظ</button>
+            </div>
+
+            <div class="slide-up-item">
+                <div class="item-info">
+                    <span class="item-name">📱 تحديث التطبيق (APK)</span>
+                    <span class="item-desc">تحقق من وجود تحديث جديد</span>
+                </div>
+                <span class="item-price">مجاني</span>
+                <button class="item-btn apk-btn" onclick="checkAPKUpdate()">🔄 تحديث</button>
+            </div>
+        </div>
+    </div>
+
     <div id="mainMenu">
         <div class="menu-hero" id="menuHero">🦸‍♂️</div>
         <div class="menu-title">🍬 كاندي هيرو</div>
@@ -270,13 +500,6 @@
                 <div class="shop-item"><div class="shop-item-info">🦄 يونيكورن</div><button onclick="buyChar('unicorn',3500)">💎3500</button></div>
                 <div class="shop-item"><div class="shop-item-info">🔥 طائر النار</div><button onclick="buyChar('phoenix',4000)">💎4000</button></div>
                 <div class="shop-item"><div class="shop-item-info">👻 شبح</div><button onclick="buyChar('ghost',500)">💎500</button></div>
-                <div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney('gems_500')" style="width:auto;padding:5px 8px;">💳</button></div>
-                <div class="shop-item special"><div class="shop-item-info">💎 1500 ($0.25)</div><button class="buy-btn" onclick="buyWithMoney('gems_1500')" style="width:auto;padding:5px 8px;">💳</button></div>
-                <div class="shop-item special"><div class="shop-item-info">💎 5000 ($0.75)</div><button class="buy-btn" onclick="buyWithMoney('gems_5000')" style="width:auto;padding:5px 8px;">💳</button></div>
-                <div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_month')" style="width:auto;padding:5px 8px;">💳</button></div>
-                <div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney('vip_forever')" style="width:auto;padding:5px 8px;">💳</button></div>
-                <div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div>
-                <div class="shop-item" style="margin-top:8px;border:2px solid #ff6b6b;"><div class="shop-item-info">📱 تحديث التطبيق (APK)</div><button class="apk-update-btn" onclick="checkAPKUpdate();" style="width:auto;padding:5px 8px;">🔄</button></div>
             </div>
             <div class="tab-content" id="tab-ads"><div class="shop-item ad-item"><div class="shop-item-info">💎 50 جوهرة</div><button class="watch-ad-btn" onclick="watchAdReward('gems')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">🪙 5000 ذهب</div><button class="watch-ad-btn" onclick="watchAdReward('gold')" style="width:auto;padding:5px 8px;">📺</button></div><div class="shop-item ad-item"><div class="shop-item-info">❤️ +3 قلوب</div><button class="watch-ad-btn" onclick="watchAdReward('hearts')" style="width:auto;padding:5px 8px;">📺</button></div></div>
             <div class="tab-content" id="tab-prestige"><button onclick="doPrestige()" id="btnPrestige" class="primary" disabled>🌟 إعادة الدورة (50+) 💎<span id="prestigeGems">20</span></button></div>
@@ -297,10 +520,26 @@
 
     <script>
         // ============================================================
-        // منع السحب والارتداد الافتراضي للمتصفح (Overscroll / Pull-to-refresh)
+        // التحكم في شريط السحب
         // ============================================================
+        var isPanelOpen = false;
+
+        function toggleSlidePanel() {
+            var panel = document.getElementById('slidePanel');
+            var handle = document.getElementById('dragHandle');
+            isPanelOpen = !isPanelOpen;
+            panel.classList.toggle('open', isPanelOpen);
+            handle.classList.toggle('open', isPanelOpen);
+            if (isPanelOpen) {
+                document.getElementById('dragHandle').querySelector('.drag-text').textContent = 'اسحب للإغلاق';
+            } else {
+                document.getElementById('dragHandle').querySelector('.drag-text').textContent = 'اسحب للعروض';
+            }
+        }
+
+        // منع السحب والارتداد الافتراضي للمتصفح (Overscroll / Pull-to-refresh)
         document.addEventListener('touchmove', function(e) {
-            if (e.touches.length > 1 || e.scale !== 1) return; // السماح بالزوم إذا كان مفعلاً
+            if (e.touches.length > 1 || e.scale !== 1) return;
             e.preventDefault();
         }, { passive: false });
 
