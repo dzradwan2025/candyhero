@@ -697,7 +697,7 @@
         var CURRENT_VERSION = '2.0';
 
         // ============================================================
-        // التحديث
+        // التحديث - مع تحسين جلب التحديثات للـ APK
         // ============================================================
         function checkForUpdate() {
             if (!navigator.onLine) {
@@ -708,17 +708,14 @@
             fetch(UPDATE_URL + '?v=' + Date.now())
                 .then(function(r) { return r.text(); })
                 .then(function(code) {
+                    // مقارنة حجم الكود للتأكد من وجود تحديث
                     if (code.length > 2000) {
                         if (confirm('🚀 يوجد تحديث جديد!\n\nتثبيت الآن؟ (التقدم محفوظ)')) {
                             save();
-                            var newScript = document.createElement('script');
-                            newScript.textContent = code;
-                            document.body.appendChild(newScript);
-                            showToast('✅ تم التحديث بنجاح!');
-                            setTimeout(function() {
-                                if (typeof updateUI === 'function') updateUI();
-                                if (typeof load === 'function') load();
-                            }, 500);
+                            // حفظ الكود الجديد في localStorage
+                            localStorage.setItem('CANDYHERO_UPDATE', code);
+                            // إعادة تحميل الصفحة لتطبيق التحديث
+                            location.reload();
                         }
                     } else {
                         showToast('✅ لديك أحدث إصدار v' + CURRENT_VERSION);
@@ -727,6 +724,7 @@
                 .catch(function() { showToast('⚠️ تعذر الاتصال'); });
         }
 
+        // دالة تحديث APK عن بعد
         function checkAPKUpdate() {
             if (!navigator.onLine) {
                 showToast('⚠️ لا يوجد اتصال بالإنترنت!');
@@ -748,7 +746,7 @@
         }
 
         // ============================================================
-        // الحفظ والتحميل
+        // الحفظ والتحميل مع دعم التحديثات
         // ============================================================
         function save() {
             try {
@@ -765,6 +763,19 @@
         }
 
         function load() {
+            // التحقق من وجود تحديث محلي
+            var updateCode = localStorage.getItem('CANDYHERO_UPDATE');
+            if (updateCode) {
+                // تطبيق التحديث المحلي
+                try {
+                    eval(updateCode);
+                    localStorage.removeItem('CANDYHERO_UPDATE');
+                    showToast('✅ تم تطبيق التحديث!');
+                } catch(e) {
+                    console.log('⚠️ فشل تطبيق التحديث المحلي');
+                }
+            }
+
             var s = localStorage.getItem('CHF8');
             if (s) {
                 try {
