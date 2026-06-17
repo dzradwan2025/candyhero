@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a1a2e">
-    <title>🍬 كاندي هيرو - Candy Hero v1.0</title>
+    <title>🍬 كاندي هيرو - Candy Hero v2.0</title>
     <style>
         :root { --gold:#FFD700; --gem:#9b59b6; --accent:#e94560; }
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
@@ -214,7 +214,6 @@
             e.preventDefault();
         });
 
-        // منع النقر المزدوج والتكبير
         document.addEventListener('dblclick', function(e) {
             e.preventDefault();
         });
@@ -291,7 +290,13 @@
                 'superhero': { e: '🦸‍♂️' },
                 'wizard': { e: '🧙‍♂️' },
                 'robot': { e: '🤖' },
-                'candyking': { e: '👑' }
+                'candyking': { e: '👑' },
+                'ninja': { e: '🥷' },
+                'pirate': { e: '🏴‍☠️' },
+                'dragon': { e: '🐉' },
+                'unicorn': { e: '🦄' },
+                'phoenix': { e: '🔥' },
+                'ghost': { e: '👻' }
             },
             hearts: 10,
             maxHearts: 10,
@@ -356,10 +361,10 @@
         ];
 
         var UPDATE_URL = 'https://dzradwan2025.github.io/candyhero/index.html';
-        var CURRENT_VERSION = '1.0';
+        var CURRENT_VERSION = '2.0';
 
         // ============================================================
-        // 3. التحديث (اللعبة و APK) - تحديث في الخلفية
+        // 3. التحديث (اللعبة و APK)
         // ============================================================
         function checkForUpdate() {
             if (!navigator.onLine) {
@@ -741,11 +746,19 @@
                 '<div class="modal-box"><button class="modal-close" onclick="closeModal(\'shopModal\')">✖️</button>' +
                 '<h2>🛒 المتجر</h2>' +
                 '<div style="width:100%;max-height:220px;overflow-y:auto;">' +
-                '<div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500);closeModal(\'shopModal\');">💎500</button></div>' +
-                '<div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500);closeModal(\'shopModal\');">💎2500</button></div>' +
-                '<div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
-                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
-                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\');closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🦸‍♂️ سوبر هيرو</div><button onclick="buyChar(\'superhero\',500)">💎500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">👑 ملك الحلوى</div><button onclick="buyChar(\'candyking\',2500)">💎2500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🥷 نينجا</div><button onclick="buyChar(\'ninja\',1000)">💎1000</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🏴‍☠️ قرصان</div><button onclick="buyChar(\'pirate\',1200)">💎1200</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🐉 تنين</div><button onclick="buyChar(\'dragon\',3000)">💎3000</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🦄 يونيكورن</div><button onclick="buyChar(\'unicorn\',3500)">💎3500</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">🔥 طائر النار</div><button onclick="buyChar(\'phoenix\',4000)">💎4000</button></div>' +
+                '<div class="shop-item"><div class="shop-item-info">👻 شبح</div><button onclick="buyChar(\'ghost\',500)">💎500</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 500 ($0.10)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_500\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 1500 ($0.25)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_1500\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item special"><div class="shop-item-info">💎 5000 ($0.75)</div><button class="buy-btn" onclick="buyWithMoney(\'gems_5000\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> شهر ($0.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_month\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
+                '<div class="shop-item vip-item"><div class="shop-item-info"><span class="vip-badge">VIP</span> دائم ($4.99)</div><button class="buy-btn" onclick="buyWithMoney(\'vip_forever\')" style="width:auto;padding:5px 8px;">💳</button></div>' +
                 '<div class="shop-item" style="margin-top:8px;"><div class="shop-item-info">☁️ حفظ سحابي (VIP)</div><button onclick="saveToCloudLocal();" style="width:auto;padding:5px 8px;">💾</button><button onclick="loadFromCloudLocal();" style="width:auto;padding:5px 8px;">📥</button></div>' +
                 '<div class="shop-item" style="margin-top:8px;border:2px solid #ff6b6b;"><div class="shop-item-info">📱 تحديث التطبيق (APK)</div><button class="apk-update-btn" onclick="checkAPKUpdate();closeModal(\'shopModal\');" style="width:auto;padding:5px 8px;">🔄</button></div>' +
                 '</div></div>';
@@ -779,19 +792,114 @@
             } else { showToast('❌ لم يتم العثور على حفظ'); }
         }
 
-        function watchAdReward(type) {
-            var today = new Date().toDateString();
-            if (adDate !== today) { adCount = 0;
-                adDate = today; }
-            if (G.isVIP) { giveReward(type); return; }
-            if (adCount >= adLimit) { showToast('⚠️ الحد اليومي! VIP غير محدود'); return; }
-            showToast('📺 جارٍ التحميل...');
-            adCount++;
-            setTimeout(function() { giveReward(type); }, 1000);
+        // ============================================================
+        // 9. نظام الإعلانات (AdMob)
+        // ============================================================
+        // هذا الكود مخصص لدمج إعلانات AdMob
+        // عند حصولك على معرف التطبيق من AdMob، ضعه هنا
+        var ADMOB_APP_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx';
+        var ADMOB_BANNER_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx';
+        var ADMOB_INTERSTITIAL_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx';
+        var ADMOB_REWARDED_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx';
+
+        function initAdMob() {
+            if (typeof window.AdMob !== 'undefined') {
+                try {
+                    window.AdMob.setAppID(ADMOB_APP_ID);
+                    window.AdMob.setBannerId(ADMOB_BANNER_ID);
+                    window.AdMob.setInterstitialId(ADMOB_INTERSTITIAL_ID);
+                    window.AdMob.setRewardedVideoId(ADMOB_REWARDED_ID);
+                    console.log('✅ AdMob initialized');
+                } catch(e) {
+                    console.log('⚠️ AdMob initialization failed:', e);
+                }
+            } else {
+                console.log('⚠️ AdMob not available (web mode)');
+            }
         }
 
+        // استدعاء تهيئة AdMob عند بدء اللعبة
+        initAdMob();
+
+        // دالة عرض إعلان بنر
+        function showBannerAd() {
+            if (typeof window.AdMob !== 'undefined') {
+                try {
+                    window.AdMob.showBanner();
+                } catch(e) {
+                    console.log('⚠️ Banner ad error:', e);
+                }
+            }
+        }
+
+        // دالة عرض إعلان منبثق (Interstitial)
+        function showInterstitialAd(callback) {
+            if (typeof window.AdMob !== 'undefined') {
+                try {
+                    window.AdMob.showInterstitial();
+                    if (callback) setTimeout(callback, 2000);
+                } catch(e) {
+                    console.log('⚠️ Interstitial ad error:', e);
+                    if (callback) callback();
+                }
+            } else {
+                if (callback) callback();
+            }
+        }
+
+        // دالة عرض إعلان مكافأة (Rewarded)
+        function showRewardedAd(callback) {
+            if (typeof window.AdMob !== 'undefined') {
+                try {
+                    window.AdMob.showRewardedVideo();
+                    if (callback) setTimeout(callback, 3000);
+                } catch(e) {
+                    console.log('⚠️ Rewarded ad error:', e);
+                    if (callback) callback();
+                }
+            } else {
+                if (callback) callback();
+            }
+        }
+
+        // دالة مشاهدة إعلان للحصول على مكافأة (تستخدم في اللعبة)
+        function watchAdReward(type) {
+            // التحقق من الاتصال بالإنترنت
+            if (!navigator.onLine) {
+                showToast('⚠️ لا يوجد اتصال بالإنترنت!');
+                return;
+            }
+            
+            // التحقق من الحد اليومي
+            var today = new Date().toDateString();
+            if (adDate !== today) { 
+                adCount = 0; 
+                adDate = today; 
+            }
+            
+            if (G.isVIP) { 
+                // إذا كان VIP، يحصل على المكافأة مباشرة بدون إعلان
+                giveReward(type); 
+                return; 
+            }
+            
+            if (adCount >= adLimit) { 
+                showToast('⚠️ الحد اليومي! VIP غير محدود'); 
+                return; 
+            }
+            
+            showToast('📺 جارٍ تحميل الإعلان...');
+            
+            // عرض إعلان المكافأة
+            showRewardedAd(function() {
+                adCount++;
+                giveReward(type);
+            });
+        }
+
+        // دالة إعطاء المكافأة
         function giveReward(type) {
-            switch (type) {
+            switch(type) {
                 case 'gems':
                     G.gems += 50;
                     showToast('✅ +50 💎');
@@ -803,121 +911,34 @@
                 case 'power':
                     G.powerActive = true;
                     G.powerTimer = 300;
-                    showToast('⚡ ×3!');
+                    showToast('⚡ ×3 لمدة 5 دقائق!');
                     break;
                 case 'hearts':
                     G.hearts = Math.min(G.maxHearts, G.hearts + 3);
                     closeModal('noHeartsModal');
-                    showToast('❤️ +3!');
+                    showToast('❤️ +3 قلوب!');
                     break;
             }
             updateUI();
             save();
         }
 
-        function buyWithMoney(type) {
-            var prices = {},
-                desc = {},
-                period = '';
-            switch (type) {
-                case 'gems_500':
-                    prices = '$0.10';
-                    desc = '💎 500 جوهرة';
-                    break;
-                case 'vip_month':
-                    prices = '$0.99';
-                    desc = '👑 VIP شهري';
-                    period = '30 يوماً';
-                    break;
-                case 'vip_forever':
-                    prices = '$4.99';
-                    desc = '👑 VIP دائم';
-                    period = 'للأبد';
-                    break;
-            }
-            var msg = '💳 تأكيد:\n\n' + desc + '\nالسعر: ' + prices;
-            if (period) msg += '\nالمدة: ' + period;
-            if (!confirm(msg)) return;
-            showToast('💳 جارٍ المعالجة...');
+        // عرض إعلان بنر عند بدء اللعب
+        function showGameBanner() {
             setTimeout(function() {
-                switch (type) {
-                    case 'gems_500':
-                        G.gems += 500;
-                        break;
-                    case 'vip_month':
-                        activateVIP(30);
-                        break;
-                    case 'vip_forever':
-                        activateVIP(99999);
-                        break;
-                }
-                updateUI();
-                save();
-                sfx('buy');
-            }, 700);
+                showBannerAd();
+            }, 3000);
         }
 
-        function activateVIP(days) {
-            G.isVIP = true;
-            G.maxHearts = 20;
-            G.hearts = 20;
-            G.dmgMult += 100;
-            G.vipExpire = days >= 99999 ? 9999999999999 : Date.now() + (days * 86400000);
-            document.getElementById('vipBadge').style.display = 'inline';
-            showToast('👑 VIP!');
-            save();
-        }
-
-        function checkVIPExpire() {
-            if (G.isVIP && G.vipExpire && G.vipExpire < Date.now() && G.vipExpire < 999999999999) {
-                G.isVIP = false;
-                G.maxHearts = 10;
-                if (G.hearts > 10) G.hearts = 10;
-                G.dmgMult -= 100;
-                document.getElementById('vipBadge').style.display = 'none';
-                showToast('⚠️ انتهى VIP!');
-                save();
-            }
-        }
-
-        function checkAchievements() {
-            achievements.forEach(function(a) {
-                var val = 0;
-                switch (a.id) {
-                    case 'click100':
-                        val = G.totalClicks;
-                        break;
-                    case 'level10':
-                    case 'level50':
-                    case 'level100':
-                        val = G.level;
-                        break;
-                    case 'bomb20':
-                        val = G.totalBombs;
-                        break;
-                    case 'candy100':
-                        val = G.totalCandies;
-                        break;
-                    case 'gems500':
-                        val = G.gems;
-                        break;
-                    case 'prestige1':
-                        val = G.prestige;
-                        break;
-                }
-                if (val >= a.goal && !G['ach_' + a.id]) {
-                    G['ach_' + a.id] = true;
-                    G.gems += a.goal >= 50 ? 30 : 15;
-                    showToast('🏅 ' + a.n + '!');
-                    sfx('ach');
-                }
-            });
-            updateUI();
-            save();
-        }
+        // تعديل دالة startGame لعرض بنر
+        var originalStartGame = startGame;
+        startGame = function() {
+            originalStartGame();
+            showGameBanner();
+        };
 
         // ============================================================
-        // 9. دوال التبويبات وتحديث الواجهة
+        // 10. دوال التبويبات وتحديث الواجهة
         // ============================================================
         function switchTab(n) {
             var ts = document.querySelectorAll('.tab'),
@@ -962,7 +983,7 @@
         }
 
         // ============================================================
-        // 10. دوال اللعب - محسنة للأداء
+        // 11. دوال اللعب
         // ============================================================
         function startSpawning() {
             if (spawnInt) { clearInterval(spawnInt);
@@ -1000,14 +1021,12 @@
             item.style.maxHeight = '60px';
             item.style.overflow = 'hidden';
             
-            // استخدام حدث واحد فقط مع touchstart للاستجابة السريعة
             item.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 clickItem(item, e);
             }, { passive: false });
             
-            // احتياطي للماوس
             item.addEventListener('mousedown', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -1022,7 +1041,6 @@
             if (!G.gameStarted || G.hearts <= 0 || G.levelFailed || gamePaused) return;
             if (item.dataset.clicked === 'true') return;
             
-            // منع النقر المتكرر السريع (تحسين الأداء)
             var now = performance.now();
             if (now - lastClick < 80) return;
             lastClick = now;
@@ -1065,7 +1083,6 @@
             G.quests.bomb10 = Math.min(10, G.quests.bomb10 + (t === 'bomb' ? 1 : 0));
             G.quests.click50 = Math.min(50, G.quests.click50 + 1);
             
-            // تأثير الإزالة الفوري مع تحريك سلس
             item.style.transition = 'transform 0.1s ease, opacity 0.15s ease';
             item.style.transform = 'scale(0)';
             item.style.opacity = '0';
@@ -1123,7 +1140,7 @@
             beginPlay(); }
 
         // ============================================================
-        // 11. فحص العناصر الفائتة - محسن للأداء
+        // 12. فحص العناصر الفائتة
         // ============================================================
         function checkMissed() {
             if (gamePaused || !G.gameStarted || G.hearts <= 0 || G.levelFailed) return;
@@ -1199,10 +1216,15 @@
         function retryLevel() { closeModal('loseModal'); if (G.hearts <= 0) return;
             beginPlay(); }
 
-        function retryWithAd() { closeModal('loseModal'); if (G.hearts <= 0) return;
-            G.clicksDone = Math.floor(G.clicksNeeded * 0.3);
-            beginPlay();
-            showToast('📺 +30%'); }
+        function retryWithAd() { 
+            closeModal('loseModal'); 
+            if (G.hearts <= 0) return;
+            showRewardedAd(function() {
+                G.clicksDone = Math.floor(G.clicksNeeded * 0.3);
+                beginPlay();
+                showToast('📺 +30%');
+            });
+        }
 
         function giveUpLevel() { closeModal('loseModal');
             goToMenu(); }
@@ -1234,7 +1256,7 @@
         }
 
         // ============================================================
-        // 12. دوال الترقيات والأبطال والدورة
+        // 13. دوال الترقيات والأبطال والدورة
         // ============================================================
         function upgradeClick() {
             if (G.gems >= upClickCost) {
@@ -1272,7 +1294,7 @@
                 return;
             }
             showToast('📺 جارٍ تحميل الإعلان...');
-            setTimeout(function() {
+            showRewardedAd(function() {
                 if (type === 'click') {
                     G.clickDmg += 2;
                     showToast('✅ تمت الترقية مجاناً!');
@@ -1291,7 +1313,7 @@
                 }
                 updateUI();
                 save();
-            }, 1500);
+            });
         }
 
         function hireHero() {
@@ -1333,12 +1355,12 @@
                 G.char = id;
                 updateUI();
                 save();
-                showToast('✨ تم!');
+                showToast('✨ تم شراء ' + id + '!');
             } else if (G.chars.indexOf(id) !== -1) {
                 G.char = id;
                 updateUI();
                 save();
-                showToast('✨ مجهز!');
+                showToast('✨ تم اختيار ' + id);
             }
         }
 
@@ -1368,7 +1390,111 @@
         }
 
         // ============================================================
-        // 13. الحلقات الزمنية
+        // 14. دوال الشراء بالمال (محاكاة الدفع)
+        // ============================================================
+        function buyWithMoney(type) {
+            var prices = {},
+                desc = {},
+                gemsAmount = 0,
+                period = '';
+            
+            switch(type) {
+                case 'gems_500':
+                    prices = '$0.10';
+                    desc = '💎 500 جوهرة';
+                    gemsAmount = 500;
+                    break;
+                case 'gems_1500':
+                    prices = '$0.25';
+                    desc = '💎 1500 جوهرة';
+                    gemsAmount = 1500;
+                    break;
+                case 'gems_5000':
+                    prices = '$0.75';
+                    desc = '💎 5000 جوهرة';
+                    gemsAmount = 5000;
+                    break;
+                case 'vip_month':
+                    prices = '$0.99';
+                    desc = '👑 VIP شهري';
+                    period = '30 يوماً';
+                    break;
+                case 'vip_forever':
+                    prices = '$4.99';
+                    desc = '👑 VIP دائم';
+                    period = 'للأبد';
+                    break;
+            }
+            
+            var msg = '💳 تأكيد الشراء:\n\n' + desc + '\nالسعر: ' + prices;
+            if (period) msg += '\nالمدة: ' + period;
+            if (gemsAmount) msg += '\nالكمية: ' + gemsAmount + ' 💎';
+            if (!confirm(msg)) return;
+            
+            showToast('💳 جارٍ معالجة الدفع...');
+            
+            // محاكاة عملية الدفع
+            setTimeout(function() {
+                if (gemsAmount) {
+                    G.gems += gemsAmount;
+                    showToast('✅ تم شراء ' + gemsAmount + ' 💎');
+                } else if (type === 'vip_month' || type === 'vip_forever') {
+                    var days = type === 'vip_month' ? 30 : 99999;
+                    activateVIP(days);
+                }
+                updateUI();
+                save();
+                sfx('buy');
+            }, 1500);
+        }
+
+        function activateVIP(days) {
+            G.isVIP = true;
+            G.maxHearts = 20;
+            G.hearts = Math.min(G.hearts + 5, 20);
+            G.dmgMult += 100;
+            G.vipExpire = days >= 99999 ? 9999999999999 : Date.now() + (days * 86400000);
+            document.getElementById('vipBadge').style.display = 'inline';
+            showToast('👑 VIP مفعل!');
+            save();
+        }
+
+        function checkVIPExpire() {
+            if (G.isVIP && G.vipExpire && G.vipExpire < Date.now() && G.vipExpire < 999999999999) {
+                G.isVIP = false;
+                G.maxHearts = 10;
+                if (G.hearts > 10) G.hearts = 10;
+                G.dmgMult -= 100;
+                document.getElementById('vipBadge').style.display = 'none';
+                showToast('⚠️ انتهى VIP!');
+                save();
+            }
+        }
+
+        function checkAchievements() {
+            achievements.forEach(function(a) {
+                var val = 0;
+                switch(a.id) {
+                    case 'click100': val = G.totalClicks; break;
+                    case 'level10': case 'level50': case 'level100': val = G.level; break;
+                    case 'bomb20': val = G.totalBombs; break;
+                    case 'candy100': val = G.totalCandies; break;
+                    case 'gems500': val = G.gems; break;
+                    case 'prestige1': val = G.prestige; break;
+                }
+                if (val >= a.goal && !G['ach_' + a.id]) {
+                    G['ach_' + a.id] = true;
+                    G.gems += a.goal >= 50 ? 30 : 15;
+                    showToast('🏅 ' + a.n + '!');
+                    sfx('ach');
+                }
+            });
+            updateUI();
+            save();
+        }
+
+        // ============================================================
+        // 15. الحلقات الزمنية
         // ============================================================
         setInterval(function() {
             checkVIPExpire();
@@ -1382,7 +1508,7 @@
         }, 1000);
 
         // ============================================================
-        // 14. دوال الإعدادات
+        // 16. دوال الإعدادات
         // ============================================================
         function toggleMusic() {
             musicOn = !musicOn;
@@ -1397,7 +1523,7 @@
         }
 
         // ============================================================
-        // 15. تحميل البيانات عند بدء التشغيل
+        // 17. تحميل البيانات عند بدء التشغيل
         // ============================================================
         load();
         updateUI();
